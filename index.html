@@ -1,1 +1,808 @@
-hi
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>학습지 교사용 관리 & 학습 태도 분석 시스템 아키텍처 가이드</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+              800: '#5b21b6',
+              900: '#4c1d95',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap');
+    body {
+      font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- 토스트 알림 메시지 (alert 미사용) -->
+  <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 opacity-0 pointer-events-none">
+    <div class="bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 text-xs sm:text-sm font-semibold border border-slate-700">
+      <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+      <span id="toastMsg">알림 메시지</span>
+    </div>
+  </div>
+
+  <!-- 상단 네비게이션 -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center font-black shadow-md shadow-purple-200">
+          <i class="fa-solid fa-chalkboard-user text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+            <span>스마트 학습지 교사 관리 & 학습 태도 분석 시스템</span>
+            <span class="bg-purple-100 text-purple-700 text-[11px] font-bold px-2 py-0.5 rounded-full">아키텍처 설계</span>
+          </h1>
+          <p class="text-xs text-slate-500">학생 제출 저장 · 자동 채점 집계 · 소요 시간 및 태도 지표 분석 체계</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 text-xs">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          실시간 수신 대기 중
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 메인 탭 전환 바 -->
+  <div class="bg-white border-b border-slate-200 sticky top-[61px] z-30">
+    <div class="max-w-7xl mx-auto px-4 flex space-x-2 sm:space-x-6 text-xs sm:text-sm">
+      <button onclick="switchTab('arch')" id="tab-btn-arch" class="border-b-2 border-purple-600 text-purple-700 font-bold py-3.5 px-2 flex items-center gap-2">
+        <i class="fa-solid fa-diagram-project"></i> 1. 시스템 구축에 필요한 4가지 요소
+      </button>
+      <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="border-b-2 border-transparent text-slate-500 hover:text-slate-800 font-semibold py-3.5 px-2 flex items-center gap-2">
+        <i class="fa-solid fa-chart-line"></i> 2. 교사용 실시간 분석 대시보드 (라이브 데모)
+      </button>
+      <button onclick="switchTab('code')" id="tab-btn-code" class="border-b-2 border-transparent text-slate-500 hover:text-slate-800 font-semibold py-3.5 px-2 flex items-center gap-2">
+        <i class="fa-solid fa-code"></i> 3. 학습 태도 측정 구현 코드 예시
+      </button>
+    </div>
+  </div>
+
+  <!-- 메인 컨텐츠 영역 -->
+  <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full space-y-6">
+
+    <!-- ================================================= -->
+    <!-- 탭 1: 시스템 구축에 필요한 4가지 핵심 요소 가이드 -->
+    <!-- ================================================= -->
+    <div id="tab-arch" class="space-y-6">
+
+      <!-- 요약 카드 -->
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-purple-950 text-white rounded-3xl p-6 shadow-lg">
+        <div class="max-w-3xl">
+          <span class="text-xs bg-purple-500/30 text-purple-200 px-3 py-1 rounded-full font-bold border border-purple-400/30">
+            핵심 요약
+          </span>
+          <h2 class="text-xl sm:text-2xl font-black mt-3 leading-snug">
+            교사가 학생의 제출 내용과 태도를 확인하기 위해선 <br class="hidden sm:block">
+            <span class="text-purple-300">"저장소 + 태도 센서 + 채점 엔진 + 관리자 화면"</span> 4박자가 필요합니다.
+          </h2>
+          <p class="text-slate-300 text-xs sm:text-sm mt-2 leading-relaxed">
+            단순히 학생 화면에서만 채점하고 끝나는 구조(프론트엔드 단독)에서 벗어나, 
+            제출 이벤트가 발생했을 때 백그라운드에서 실시간 데이터베이스(DB)로 전송하고 교사 화면에서 이를 통계화하는 파이프라인을 구축해야 합니다.
+          </p>
+        </div>
+      </div>
+
+      <!-- 4대 구성 요소 그리드 -->
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- 요소 1 -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-lg mb-3">
+              <i class="fa-solid fa-database"></i>
+            </div>
+            <span class="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">필수 1</span>
+            <h3 class="text-base font-extrabold text-slate-800 mt-1">중앙 데이터 저장소</h3>
+            <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+              학생들이 제출한 답안, 점수, 타임스탬프를 보관하는 데이터베이스입니다.
+            </p>
+            <ul class="text-xs text-slate-500 mt-3 space-y-1.5 border-t border-slate-100 pt-3">
+              <li>• <strong>클라우드 NoSQL DB:</strong> 실시간 수신에 가장 적합</li>
+              <li>• <strong>구글 스프레드시트 연동:</strong> Apps Script를 통해 엑셀 시트로 즉시 자동 축적</li>
+            </ul>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-blue-700 font-semibold">
+            추천: Google Sheets 또는 Cloud DB
+          </div>
+        </div>
+
+        <!-- 요소 2 -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-lg mb-3">
+              <i class="fa-solid fa-stopwatch"></i>
+            </div>
+            <span class="text-[11px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded">필수 2</span>
+            <h3 class="text-base font-extrabold text-slate-800 mt-1">학습 태도 센서 (Telemetry)</h3>
+            <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+              점수뿐 아니라 ‘어떻게 풀었는가’를 추적하는 클라이언트 측정 스크립트입니다.
+            </p>
+            <ul class="text-xs text-slate-500 mt-3 space-y-1.5 border-t border-slate-100 pt-3">
+              <li>• <strong>순수 소요 시간:</strong> 시작 ~ 제출까지의 시간</li>
+              <li>• <strong>화면 이탈 감지:</strong> 시험 중 딴짓/검색 창 전환</li>
+              <li>• <strong>시뮬레이션 조작량:</strong> 지도·도구 클릭 횟수</li>
+            </ul>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-purple-700 font-semibold">
+            학생 단말기에서 자동 백그라운드 기록
+          </div>
+        </div>
+
+        <!-- 요소 3 -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-lg mb-3">
+              <i class="fa-solid fa-calculator"></i>
+            </div>
+            <span class="text-[11px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded">필수 3</span>
+            <h3 class="text-base font-extrabold text-slate-800 mt-1">자동 채점 & 성향 판별</h3>
+            <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+              객관식·단답형 정답 판정과 태도 점수를 종합 산출하는 로직입니다.
+            </p>
+            <ul class="text-xs text-slate-500 mt-3 space-y-1.5 border-t border-slate-100 pt-3">
+              <li>• <strong>단답형 유연 채점:</strong> 띄어쓰기 및 유사어 처리</li>
+              <li>• <strong>성향 배지 부여:</strong> "심층 탐구형", "초스피드형", "신중 검토형" 자동 라벨링</li>
+            </ul>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-amber-700 font-semibold">
+            제출 즉시 1초 내에 종합 판정
+          </div>
+        </div>
+
+        <!-- 요소 4 -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-lg mb-3">
+              <i class="fa-solid fa-desktop"></i>
+            </div>
+            <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">필수 4</span>
+            <h3 class="text-base font-extrabold text-slate-800 mt-1">교사용 실시간 대시보드</h3>
+            <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+              수업 중 교탁 화면이나 스마트폰으로 학급 전체 진행 상황을 관제하는 UI입니다.
+            </p>
+            <ul class="text-xs text-slate-500 mt-3 space-y-1.5 border-t border-slate-100 pt-3">
+              <li>• 미제출자 실시간 현황 체크</li>
+              <li>• 오답률 1위 취약 문항 즉시 피드백</li>
+              <li>• 나이스(NEIS) 또는 엑셀(CSV) 다운로드</li>
+            </ul>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-emerald-700 font-semibold">
+            수업 중 즉각적인 개별 피드백 가능
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 구체적인 구현 방식 3가지 비교 -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <h3 class="text-base font-extrabold text-slate-900 mb-1 flex items-center gap-2">
+          <i class="fa-solid fa-scale-balanced text-purple-600"></i>
+          학교 현장 적용을 위한 3가지 구축 옵션 비교
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">선생님의 기술 환경과 인프라에 맞춰 선택할 수 있습니다.</p>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                <th class="p-3 font-bold">구축 방식</th>
+                <th class="p-3 font-bold">장점</th>
+                <th class="p-3 font-bold">단점 / 제약</th>
+                <th class="p-3 font-bold">난이도 및 추천 대상</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+              <tr>
+                <td class="p-3 font-bold text-slate-800 bg-purple-50/50">
+                  방법 A. Google 스프레드시트<br>(Apps Script Webhook)
+                </td>
+                <td class="p-3 text-slate-600">
+                  • 완전 무료, 별도 서버 불필요<br>
+                  • 교사 익숙한 구글 시트 엑셀로 실시간 누적<br>
+                  • 학교 구글 계정으로 손쉽게 연동
+                </td>
+                <td class="p-3 text-slate-500">
+                  • 동시 수백 명 접속 시 시트 딜레이 1~2초 발생 가능
+                </td>
+                <td class="p-3 font-bold text-emerald-600">
+                  ★ 가장 추천 (초·중·고 수업용으로 최고)
+                </td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold text-slate-800">
+                  방법 B. 서버리스 클라우드 DB<br>(Cloud Firestore 등)
+                </td>
+                <td class="p-3 text-slate-600">
+                  • 학생 제출 순간 교사 화면 0.1초 갱신 (실시간 소켓)<br>
+                  • 대규모 동시 제출에도 안정적
+                </td>
+                <td class="p-3 text-slate-500">
+                  • 클라우드 프로젝트 생성 및 보안 규칙 설정 필요
+                </td>
+                <td class="p-3 text-indigo-600 font-semibold">
+                  중급 (고급 인터랙티브 수업용)
+                </td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold text-slate-800">
+                  방법 C. 학교 자체 서버<br>(Node.js / Python Flask)
+                </td>
+                <td class="p-3 text-slate-600">
+                  • 완전한 데이터 소유 및 교내망 독립 운영
+                </td>
+                <td class="p-3 text-slate-500">
+                  • 서버 호스팅 비용, 보안 관리, 방화벽 문제
+                </td>
+                <td class="p-3 text-slate-400">
+                  고급 (학교 전산실 지원 필요)
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- 탭 2: 교사용 실시간 분석 대시보드 (라이브 데모) -->
+    <!-- ================================================= -->
+    <div id="tab-dashboard" class="hidden space-y-6">
+
+      <!-- 교사 관리 패널 헤더 통계 -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
+          <span class="text-xs font-semibold text-slate-500">총 학생수 / 제출 완료</span>
+          <div class="flex items-baseline gap-2 mt-1">
+            <span class="text-2xl font-black text-slate-900" id="stat-submitted">5</span>
+            <span class="text-xs text-slate-400">/ 24명 (21%)</span>
+          </div>
+          <div class="w-full bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden">
+            <div class="bg-purple-600 h-full w-[21%]"></div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
+          <span class="text-xs font-semibold text-slate-500">학급 평균 점수</span>
+          <div class="flex items-baseline gap-2 mt-1">
+            <span class="text-2xl font-black text-indigo-700" id="stat-avg-score">87.0점</span>
+            <span class="text-xs text-emerald-600 font-bold"><i class="fa-solid fa-arrow-up"></i> 양호</span>
+          </div>
+          <span class="text-[11px] text-slate-400 mt-1 block">최고 100점 · 최저 75점</span>
+        </div>
+
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
+          <span class="text-xs font-semibold text-slate-500">평균 풀이 소요 시간</span>
+          <div class="flex items-baseline gap-2 mt-1">
+            <span class="text-2xl font-black text-emerald-700">11분 40초</span>
+          </div>
+          <span class="text-[11px] text-slate-400 mt-1 block">권장 시간(15분) 내 집중 수행</span>
+        </div>
+
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
+          <span class="text-xs font-semibold text-slate-500">취약 문항 (최다 오답)</span>
+          <div class="flex items-baseline gap-2 mt-1">
+            <span class="text-2xl font-black text-rose-600">5번 문항</span>
+          </div>
+          <span class="text-[11px] text-rose-500 mt-1 block">정답률 60% (제천 행사 혼동)</span>
+        </div>
+      </div>
+
+      <!-- 시뮬레이션 제어 툴바 -->
+      <div class="bg-purple-50 border border-purple-200 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-purple-600 animate-ping"></span>
+          <span class="text-xs font-bold text-purple-900">가상 학생 실시간 제출 시뮬레이터:</span>
+          <span class="text-xs text-purple-700">버튼을 누르면 다양한 태도(성실형, 딴짓형, 찍기형)를 가진 학생이 제출됩니다.</span>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="simulateNewSubmission('diligent')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-sm">
+            + [성실 탐구형] 학생 제출
+          </button>
+          <button onclick="simulateNewSubmission('distracted')" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition shadow-sm">
+            + [창 이탈/딴짓형] 학생 제출
+          </button>
+          <button onclick="simulateNewSubmission('speedy')" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition shadow-sm">
+            + [3분 컷/찍기형] 학생 제출
+          </button>
+        </div>
+      </div>
+
+      <!-- 제출 학생 목록 테이블 -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+          <h3 class="text-sm font-extrabold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-users-viewfinder text-purple-600"></i>
+            실시간 학생별 답안 및 참여 태도 분석표
+          </h3>
+          <div class="flex items-center gap-2">
+            <button onclick="exportToCSV()" class="px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 flex items-center gap-1.5 transition">
+              <i class="fa-solid fa-file-excel text-emerald-600"></i> 엑셀(CSV) 다운로드
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs text-left border-collapse" id="submission-table">
+            <thead>
+              <tr class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                <th class="p-3 font-bold text-center">번호</th>
+                <th class="p-3 font-bold">학생 정보</th>
+                <th class="p-3 font-bold text-center">점수 / 등급</th>
+                <th class="p-3 font-bold">제출 시각</th>
+                <th class="p-3 font-bold">소요 시간</th>
+                <th class="p-3 font-bold text-center">시뮬레이션 조작</th>
+                <th class="p-3 font-bold text-center">화면 이탈</th>
+                <th class="p-3 font-bold">학습 태도 종합 평가</th>
+                <th class="p-3 font-bold text-center">세부 답안</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100" id="submission-tbody">
+              <!-- 학생 데이터 행 -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- 탭 3: 학습 태도 측정 구현 코드 스니펫 -->
+    <!-- ================================================= -->
+    <div id="tab-code" class="hidden space-y-6">
+
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <h3 class="text-base font-extrabold text-slate-900 mb-1 flex items-center gap-2">
+          <i class="fa-solid fa-code text-indigo-600"></i>
+          학습 태도 데이터(Telemetry)를 수집하는 자바스크립트 코드 원리
+        </h3>
+        <p class="text-xs text-slate-500 mb-4">
+          학생이 학습지 창을 연 순간부터 제출할 때까지 아래의 3대 센서 코드가 백그라운드에서 동작하도록 구성합니다.
+        </p>
+
+        <!-- 코드 블록 1: 시간 및 화면 이탈 감지 -->
+        <div class="space-y-4">
+          <div>
+            <span class="text-xs font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded">1. 소요 시간 & 시험 중 딴짓(화면 이탈) 감지</span>
+            <pre class="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs font-mono mt-2 overflow-x-auto leading-relaxed">
+<span class="text-purple-400">// 학습 시작 시간 기록</span>
+const startTime = Date.now();
+let tabSwitchCount = 0; <span class="text-slate-500">// 다른 창이나 탭으로 벗어난 횟수</span>
+
+<span class="text-purple-400">// 학생이 다른 브라우저 탭을 열거나 유튜브/게임을 켜면 즉시 감지</span>
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    tabSwitchCount++;
+    console.log(`[태도 경고] 학생이 학습지 화면을 벗어났습니다. 누적: ${tabSwitchCount}회`);
+  }
+});
+            </pre>
+          </div>
+
+          <!-- 코드 블록 2: 시뮬레이터 적극성 측정 -->
+          <div>
+            <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">2. 시뮬레이터 적극 탐구율 측정</span>
+            <pre class="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs font-mono mt-2 overflow-x-auto leading-relaxed">
+let mapClickCount = 0;
+let rockHitCount = 0;
+
+<span class="text-purple-400">// 지도의 나라를 클릭하거나 도구를 직접 만질 때마다 카운트</span>
+function inspectState(stateName) {
+  mapClickCount++;
+  <span class="text-slate-500">// ... 지도 정보 표출</span>
+}
+
+function hitStone() {
+  rockHitCount++;
+  <span class="text-slate-500">// ... 뗀석기 가공</span>
+}
+            </pre>
+          </div>
+
+          <!-- 코드 블록 3: 제출 시 전송 페이로드 -->
+          <div>
+            <span class="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">3. 최종 제출 시 교사 서버(또는 구글 시트)로 전송하는 데이터 객체</span>
+            <pre class="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs font-mono mt-2 overflow-x-auto leading-relaxed">
+const payload = {
+  student: { grade: "1-2", num: 15, name: "홍길동" },
+  scores: { totalScore: 90, blankScore: 40, quizScore: 50 },
+  answers: { ... },
+  
+  <span class="text-amber-400">// ★ 학습 참여 태도 지표 데이터</span>
+  attitude: {
+    startTime: new Date(startTime).toLocaleTimeString(),
+    submitTime: new Date().toLocaleTimeString(),
+    durationSeconds: Math.floor((Date.now() - startTime) / 1000), <span class="text-slate-500">// 실제 소요 시간</span>
+    tabSwitches: tabSwitchCount, <span class="text-slate-500">// 화면 이탈 횟수</span>
+    interactions: mapClickCount + rockHitCount, <span class="text-slate-500">// 조작 적극성</span>
+    attitudeBadge: tabSwitchCount > 3 ? "주의(이탈)" : "성실참여"
+  }
+};
+
+<span class="text-purple-400">// 교사용 구글 스프레드시트 Webhook 또는 클라우드 DB로 원클릭 발송</span>
+fetch("교사용_수신_URL", {
+  method: "POST",
+  body: JSON.stringify(payload)
+});
+            </pre>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- 학생 상세 답안 조회 모달 -->
+  <div id="studentDetailModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-xl w-full max-h-[85vh] overflow-hidden shadow-2xl flex flex-col">
+      <div class="bg-slate-900 text-white p-5 flex items-center justify-between">
+        <h3 class="text-base font-bold flex items-center gap-2" id="modal-student-name">
+          <i class="fa-solid fa-id-card text-purple-400"></i> 학생 세부 제출 답안
+        </h3>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto space-y-4 custom-scrollbar text-xs" id="modal-content">
+        <!-- 동적 렌더링 -->
+      </div>
+
+      <div class="p-4 bg-slate-50 border-t border-slate-200 text-right">
+        <button onclick="closeModal()" class="px-4 py-2 bg-slate-800 text-white rounded-xl font-bold">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 푸터 -->
+  <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-400">
+    고등학교 한국사 디지털 학습지 교사 관제 솔루션 &copy; 2026.
+  </footer>
+
+  <!-- 자바스크립트 로직 -->
+  <script>
+    // 가상 제출 학생 데이터베이스
+    const studentSubmissions = [
+      {
+        id: 1,
+        grade: '1-3',
+        num: 4,
+        name: '강민준',
+        score: 100,
+        gradeRank: 'A등급',
+        submitTime: '10:14:22',
+        durationSec: 812, // 13분 32초
+        interactions: 16, // 지도 및 도구 조작 횟수
+        tabSwitches: 0,   // 화면 이탈
+        attitudeLabel: '최우수 탐구형',
+        attitudeColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+        note: '시뮬레이션 전 항목 꼼꼼히 탐구 후 답안 작성. 이상 없음.',
+        answers: ['신석기', '움집', '청동기', '위만', '8조법', '철기', '영고', '동맹']
+      },
+      {
+        id: 2,
+        grade: '1-3',
+        num: 11,
+        name: '김서연',
+        score: 95,
+        gradeRank: 'A등급',
+        submitTime: '10:15:05',
+        durationSec: 745, // 12분 25초
+        interactions: 12,
+        tabSwitches: 0,
+        attitudeLabel: '성실 집중형',
+        attitudeColor: 'bg-indigo-100 text-indigo-800 border-indigo-200',
+        note: '권장 시간 내에 침착하게 전 문항 해결.',
+        answers: ['신석기', '움집', '청동기', '위만', '8조법', '철기', '영고', '동맹']
+      },
+      {
+        id: 3,
+        grade: '1-3',
+        num: 15,
+        name: '박도현',
+        score: 80,
+        gradeRank: 'B등급',
+        submitTime: '10:17:40',
+        durationSec: 940, // 15분 40초
+        interactions: 8,
+        tabSwitches: 1,
+        attitudeLabel: '신중 검토형',
+        attitudeColor: 'bg-blue-100 text-blue-800 border-blue-200',
+        note: '제천 행사 문항에서 고민 시간이 길었음.',
+        answers: ['신석기', '움집', '청동기', '위만', '8조법', '철기', '영고', '무천(오답)']
+      },
+      {
+        id: 4,
+        grade: '1-3',
+        num: 19,
+        name: '이수아',
+        score: 85,
+        gradeRank: 'B등급',
+        submitTime: '10:12:10',
+        durationSec: 620, // 10분 20초
+        interactions: 14,
+        tabSwitches: 3,
+        attitudeLabel: '화면 이탈 주의',
+        attitudeColor: 'bg-amber-100 text-amber-800 border-amber-200',
+        note: '학습지 풀이 도중 다른 인터넷 창으로 3회 이동한 이력 감지됨.',
+        answers: ['신석기', '움집', '청동기', '위만', '8조법', '철기', '동맹(오답)', '동맹']
+      },
+      {
+        id: 5,
+        grade: '1-3',
+        num: 23,
+        name: '정우진',
+        score: 75,
+        gradeRank: 'C등급',
+        submitTime: '10:04:15',
+        durationSec: 215, // 3분 35초
+        interactions: 2,
+        tabSwitches: 0,
+        attitudeLabel: '초스피드(찍기 의심)',
+        attitudeColor: 'bg-rose-100 text-rose-800 border-rose-200',
+        note: '시뮬레이션 조작 거의 없이 3분 만에 급하게 제출. 재학습 지도 요망.',
+        answers: ['신석기', '움집', '청동기', '위만', '법(오답)', '철기', '영고', '오답']
+      }
+    ];
+
+    // 탭 전환
+    function switchTab(tabId) {
+      ['arch', 'dashboard', 'code'].forEach(t => {
+        const div = document.getElementById(`tab-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (t === tabId) {
+          div.classList.remove('hidden');
+          btn.className = 'border-b-2 border-purple-600 text-purple-700 font-bold py-3.5 px-2 flex items-center gap-2';
+        } else {
+          div.classList.add('hidden');
+          btn.className = 'border-b-2 border-transparent text-slate-500 hover:text-slate-800 font-semibold py-3.5 px-2 flex items-center gap-2';
+        }
+      });
+    }
+
+    // 초를 분:초로 포맷
+    function formatDuration(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${m}분 ${s < 10 ? '0' : ''}${s}초`;
+    }
+
+    // 테이블 렌더링
+    function renderTable() {
+      const tbody = document.getElementById('submission-tbody');
+      tbody.innerHTML = '';
+
+      studentSubmissions.forEach((s, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition border-b border-slate-100';
+
+        tr.innerHTML = `
+          <td class="p-3 text-center font-mono font-bold text-slate-400">${idx + 1}</td>
+          <td class="p-3">
+            <div class="font-extrabold text-slate-900">${s.grade} ${s.num}번 ${s.name}</div>
+          </td>
+          <td class="p-3 text-center">
+            <span class="font-black text-indigo-700 text-sm">${s.score}점</span>
+            <span class="text-[10px] text-slate-400 block">${s.gradeRank}</span>
+          </td>
+          <td class="p-3 font-mono text-slate-600">${s.submitTime}</td>
+          <td class="p-3 font-medium text-slate-700">
+            ${formatDuration(s.durationSec)}
+          </td>
+          <td class="p-3 text-center font-bold text-slate-700">
+            ${s.interactions}회
+          </td>
+          <td class="p-3 text-center font-bold ${s.tabSwitches > 0 ? 'text-amber-600' : 'text-slate-400'}">
+            ${s.tabSwitches > 0 ? `⚠️ ${s.tabSwitches}회` : '0회'}
+          </td>
+          <td class="p-3">
+            <span class="inline-block px-2.5 py-1 rounded-lg text-[11px] font-bold border ${s.attitudeColor}">
+              ${s.attitudeLabel}
+            </span>
+            <span class="text-[10px] text-slate-400 block mt-0.5 truncate max-w-xs">${s.note}</span>
+          </td>
+          <td class="p-3 text-center">
+            <button onclick="viewStudentDetail(${s.id})" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-purple-100 hover:text-purple-700 font-bold text-[11px] transition">
+              상세 답안
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // 통계 갱신
+      document.getElementById('stat-submitted').textContent = studentSubmissions.length;
+      const totalScore = studentSubmissions.reduce((acc, cur) => acc + cur.score, 0);
+      const avg = (totalScore / studentSubmissions.length).toFixed(1);
+      document.getElementById('stat-avg-score').textContent = `${avg}점`;
+    }
+
+    // 신규 학생 제출 시뮬레이션
+    function simulateNewSubmission(type) {
+      const newId = studentSubmissions.length + 1;
+      const now = new Date();
+      const timeStr = now.toTimeString().split(' ')[0];
+
+      let newStudent;
+      if (type === 'diligent') {
+        newStudent = {
+          id: newId,
+          grade: '1-3',
+          num: 8,
+          name: '송유진',
+          score: 100,
+          gradeRank: 'A등급',
+          submitTime: timeStr,
+          durationSec: 890,
+          interactions: 19,
+          tabSwitches: 0,
+          attitudeLabel: '성실 탐구형',
+          attitudeColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+          note: '지도 및 도구를 적극적으로 누르며 만점 달성.',
+          answers: ['신석기', '움집', '청동기', '위만', '8조법', '철기', '영고', '동맹']
+        };
+      } else if (type === 'distracted') {
+        newStudent = {
+          id: newId,
+          grade: '1-3',
+          num: 21,
+          name: '최태양',
+          score: 70,
+          gradeRank: 'C등급',
+          submitTime: timeStr,
+          durationSec: 1020,
+          interactions: 5,
+          tabSwitches: 5,
+          attitudeLabel: '이탈 5회(딴짓 감지)',
+          attitudeColor: 'bg-amber-100 text-amber-800 border-amber-200',
+          note: '화면 전환이 5회 이상 발생함. 집중도 저하.',
+          answers: ['신석기', '움집', '청동기', '오답', '8조법', '오답', '영고', '동맹']
+        };
+      } else {
+        newStudent = {
+          id: newId,
+          grade: '1-3',
+          num: 17,
+          name: '윤하람',
+          score: 60,
+          gradeRank: 'D등급',
+          submitTime: timeStr,
+          durationSec: 140, // 2분 20초
+          interactions: 1,
+          tabSwitches: 0,
+          attitudeLabel: '초단기(찍기 추정)',
+          attitudeColor: 'bg-rose-100 text-rose-800 border-rose-200',
+          note: '2분 20초 만에 무작위 클릭 후 제출.',
+          answers: ['신석기', '오답', '청동기', '오답', '오답', '오답', '오답', '동맹']
+        };
+      }
+
+      studentSubmissions.unshift(newStudent);
+      renderTable();
+      showToast(`새로운 제출 수신: [${newStudent.name}] 학생의 답안 및 태도 데이터가 집계되었습니다.`);
+    }
+
+    // 학생 세부 답안 모달
+    function viewStudentDetail(id) {
+      const student = studentSubmissions.find(s => s.id === id);
+      if (!student) return;
+
+      document.getElementById('modal-student-name').innerHTML = `
+        <i class="fa-solid fa-user-check text-purple-400"></i>
+        ${student.grade} ${student.num}번 ${student.name} 학생의 세부 분석
+      `;
+
+      const content = document.getElementById('modal-content');
+      content.innerHTML = `
+        <div class="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+          <div><strong>최종 점수:</strong> <span class="text-indigo-700 font-bold">${student.score}점 (${student.gradeRank})</span></div>
+          <div><strong>총 소요 시간:</strong> ${formatDuration(student.durationSec)}</div>
+          <div><strong>화면 이탈 횟수:</strong> ${student.tabSwitches}회</div>
+          <div><strong>탐구 상호작용:</strong> ${student.interactions}회</div>
+        </div>
+
+        <div class="border-t border-slate-100 pt-3">
+          <h4 class="font-bold text-slate-800 mb-2">교사 지도용 태도 총평:</h4>
+          <p class="p-3 bg-purple-50 text-purple-900 rounded-xl font-medium">${student.note}</p>
+        </div>
+
+        <div class="border-t border-slate-100 pt-3">
+          <h4 class="font-bold text-slate-800 mb-2">학습지 빈칸 제출 내역:</h4>
+          <div class="grid grid-cols-2 gap-2">
+            ${student.answers.map((ans, i) => `
+              <div class="p-2 rounded-lg bg-slate-100 flex justify-between">
+                <span class="text-slate-500">빈칸 ${i+1}번:</span>
+                <span class="font-bold ${ans.includes('오답') ? 'text-rose-600' : 'text-slate-800'}">${ans}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('studentDetailModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('studentDetailModal').classList.add('hidden');
+    }
+
+    // CSV 다운로드 시뮬레이션
+    function exportToCSV() {
+      let csv = "\uFEFF학번,이름,점수,등급,제출시각,소요시간,시뮬레이션조작,화면이탈,태도평가\n";
+      studentSubmissions.forEach(s => {
+        csv += `"${s.grade} ${s.num}","${s.name}",${s.score},"${s.gradeRank}","${s.submitTime}","${formatDuration(s.durationSec)}",${s.interactions},${s.tabSwitches},"${s.attitudeLabel}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `한국사_학습지_제출결과_${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast('학급 전체 채점 및 태도 결과가 CSV 파일로 다운로드되었습니다.');
+    }
+
+    // 토스트 알림
+    let toastTimer;
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      toast.classList.add('opacity-100');
+
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 3000);
+    }
+
+    window.onload = function() {
+      renderTable();
+    };
+  </script>
+</body>
+</html>
