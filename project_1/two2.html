@@ -1,0 +1,953 @@
+<title>남북국 인터랙티브 학습지</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@600;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: 학습지 한 장을 웹으로 옮긴 단일 열 — 단원 표제, 고정 탭(정리 → 탐구 → 확인), 아래로 패널이 쌓임 */
+:root{
+  --bg:#eef1f0; --surface:#ffffff; --surface-2:#e4e9e7; --ink:#1b2321; --muted:#56635f; --line:#cdd5d2;
+  --accent:#24456e; --accent-soft:#dde6f1; --on-accent:#ffffff;
+  --silla:#8a5d0c; --silla-soft:#f2e6c9;
+  --baekje:#694c8c; --baekje-soft:#e8e1f1;
+  --goguryeo:#2f6491; --goguryeo-soft:#dbe7f2;
+  --balhae:#1d6b64; --balhae-soft:#d4ebe7;
+  --good:#24744a; --good-soft:#dbeee2; --bad:#ad3b2a; --bad-soft:#f5dfda;
+  --shade:rgba(20,28,26,.55);
+  --font-display:'Hahmlet','Noto Serif KR','AppleMyungjo','Batang',serif;
+  --font-body:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#121816; --surface:#1a2220; --surface-2:#24302d; --ink:#e4ebe8; --muted:#9aa8a3; --line:#33403c;
+  --accent:#8fb3e0; --accent-soft:#22324a; --on-accent:#0f1620;
+  --silla:#ddb05a; --silla-soft:#3a301c; --baekje:#bba2e3; --baekje-soft:#2e2840;
+  --goguryeo:#86b8e3; --goguryeo-soft:#1e3046; --balhae:#66c4b9; --balhae-soft:#183834;
+  --good:#74cf9b; --good-soft:#1c3427; --bad:#f08f7a; --bad-soft:#3d231e; --shade:rgba(0,0,0,.65);
+  color-scheme:dark; } }
+:root[data-theme="dark"]{
+  --bg:#121816; --surface:#1a2220; --surface-2:#24302d; --ink:#e4ebe8; --muted:#9aa8a3; --line:#33403c;
+  --accent:#8fb3e0; --accent-soft:#22324a; --on-accent:#0f1620;
+  --silla:#ddb05a; --silla-soft:#3a301c; --baekje:#bba2e3; --baekje-soft:#2e2840;
+  --goguryeo:#86b8e3; --goguryeo-soft:#1e3046; --balhae:#66c4b9; --balhae-soft:#183834;
+  --good:#74cf9b; --good-soft:#1c3427; --bad:#f08f7a; --bad-soft:#3d231e; --shade:rgba(0,0,0,.65);
+  color-scheme:dark; }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--surface)}
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3,h4{text-wrap:balance;margin:0}
+h1,h2,.sec-title{font-family:var(--font-display)}
+b,strong{font-weight:600}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.eyebrow{font-size:12px;letter-spacing:.06em;color:var(--muted);margin:0;font-weight:500}
+
+/* 표제 */
+.masthead{background:var(--surface);border-bottom:1px solid var(--line)}
+.masthead .wrap{padding-block:20px 18px;display:flex;flex-wrap:wrap;gap:16px 24px;align-items:flex-end;justify-content:space-between}
+.title-block{min-width:0}
+.title-block h1{font-size:clamp(24px,4.2vw,32px);font-weight:700;line-height:1.25;margin-top:4px;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.unit-no{font-family:var(--font-body);font-size:.62em;font-weight:700;color:var(--on-accent);background:var(--accent);padding:2px 8px;border-radius:4px;letter-spacing:.02em}
+.pages{font-size:13px;color:var(--muted);margin:6px 0 0}
+.student{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.student label{display:flex;flex-direction:column;font-size:11px;color:var(--muted);gap:2px;font-weight:500}
+.student input{font:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);width:72px}
+.student input#st-name{width:110px;font-weight:600}
+.saved-note{font-size:11px;color:var(--muted);align-self:flex-end;padding-bottom:8px}
+
+/* 탭 */
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.tabrow{display:flex;gap:4px;overflow-x:auto}
+.tab{appearance:none;border:0;background:none;padding:12px 10px 10px;border-bottom:3px solid transparent;cursor:pointer;display:flex;gap:8px;align-items:center;white-space:nowrap;font-weight:600;color:var(--muted);font-size:14px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tab .step{font-size:11px;font-weight:700;width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;background:var(--surface-2);color:var(--muted)}
+.tab[aria-selected="true"] .step{background:var(--accent);color:var(--on-accent)}
+.cnt{font-size:12px;font-weight:500;color:var(--muted);font-variant-numeric:tabular-nums}
+
+main.wrap{padding-block:24px 40px}
+.view{display:flex;flex-direction:column;gap:20px}
+.view-head h2{font-size:clamp(20px,3vw,24px);font-weight:700;margin-top:4px}
+.lede{color:var(--muted);margin:6px 0 0;max-width:68ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px}
+@media (max-width:520px){.panel{padding:16px}}
+
+/* 정리 학습지 */
+.sheet{display:flex;flex-direction:column;gap:14px}
+.sec-title{font-size:18px;font-weight:700;display:flex;gap:10px;align-items:baseline;padding-top:14px;border-top:1px solid var(--line)}
+.sheet .sec-title:first-child{border-top:0;padding-top:0}
+.sec-no{font-family:var(--font-body);font-size:13px;color:var(--accent);font-weight:700;flex:none}
+.sheet h4{font-size:15px;font-weight:600}
+.sheet ul,.sheet ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.table-scroll{overflow-x:auto}
+.sheet-table{border-collapse:collapse;width:100%;min-width:480px;font-size:14.5px}
+.sheet-table th,.sheet-table td{border:1px solid var(--line);padding:10px 12px;vertical-align:top;text-align:left}
+.sheet-table th{background:var(--surface-2);font-weight:600;width:88px;white-space:nowrap}
+.sheet-table td ul{padding-left:18px}
+.dl-list{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0}
+.dl-list dt{font-weight:600;white-space:nowrap}
+.dl-list dd{margin:0;min-width:0}
+@media (max-width:520px){.dl-list{grid-template-columns:1fr}.dl-list dd{padding-left:12px;margin-bottom:6px}}
+
+.blank-wrap{display:inline-flex;align-items:center;gap:4px;margin:2px 2px;vertical-align:middle}
+.bn{font-size:13px;color:var(--accent);font-weight:700}
+.blank{font:inherit;font-weight:600;width:8.5em;max-width:46vw;padding:3px 6px;border:0;border-bottom:2px solid var(--accent);background:var(--accent-soft);color:var(--ink);border-radius:4px 4px 0 0;text-align:center}
+.blank.ok{border-bottom-color:var(--good);background:var(--good-soft)}
+.blank.no{border-bottom-color:var(--bad);background:var(--bad-soft)}
+.mark{font-size:13px;font-weight:700;min-width:1em}
+.mark.ok{color:var(--good)} .mark.no{color:var(--bad)}
+.hint-btn{border:1px solid var(--line);background:var(--surface);border-radius:4px;font-size:11px;padding:1px 6px;cursor:pointer;color:var(--muted)}
+
+/* 공용 버튼 */
+.action-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-end}
+.action-bar .msg{margin-right:auto}
+.btn{appearance:none;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);padding:9px 16px;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.small{padding:6px 12px;font-size:13px}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.msg{font-size:14px;color:var(--muted);margin:0;min-height:1.2em;flex:1 1 220px}
+.msg.ok{color:var(--good);font-weight:600} .msg.no{color:var(--bad);font-weight:600}
+
+/* 탐구 활동 공용 */
+.act-head{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.act-head h3{font-size:18px;font-weight:700;font-family:var(--font-display);margin-top:2px}
+.act-head p{margin:4px 0 0;color:var(--muted);font-size:14px;max-width:62ch}
+.chip{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.chip.done{background:var(--good-soft);color:var(--good)}
+.act-foot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+
+/* 탐구 1: 카드 분류 */
+.pool{display:flex;flex-wrap:wrap;gap:8px;padding:12px;border:1px dashed var(--line);border-radius:8px;min-height:56px;background:var(--bg)}
+.pool:empty::after{content:"모든 카드를 놓았습니다. [확인]을 눌러 보세요.";color:var(--muted);font-size:13px}
+.card{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:7px 10px;font-size:13.5px;cursor:pointer;text-align:left;line-height:1.4}
+.card[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 1px var(--accent)}
+.card.ok{border-color:var(--good);background:var(--good-soft)}
+.card.no{border-color:var(--bad);background:var(--bad-soft)}
+.kings{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:12px}
+.king{border:1px solid var(--line);border-radius:8px;display:flex;flex-direction:column;min-width:0}
+.king-head{appearance:none;border:0;border-bottom:1px solid var(--line);background:var(--silla-soft);color:var(--ink);padding:9px 10px;border-radius:8px 8px 0 0;cursor:pointer;text-align:left;display:flex;justify-content:space-between;gap:6px;align-items:center;font-weight:700;font-family:var(--font-display)}
+.king-head span{font-family:var(--font-body);font-size:11px;font-weight:500;color:var(--silla)}
+.king-drop{padding:8px;display:flex;flex-direction:column;gap:6px;min-height:52px}
+
+/* 탐구 2: 지도 */
+.map-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+@media (max-width:760px){.map-layout{grid-template-columns:1fr}}
+.map-box{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.map-box svg{width:100%;max-width:400px;height:auto;margin:0 auto;display:block}
+.toggles{display:flex;flex-wrap:wrap;gap:6px}
+.toggle{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:12.5px;cursor:pointer;font-weight:500}
+.toggle[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px;border:1px solid}
+.lg-silla{background:var(--silla-soft);border-color:var(--silla)!important}
+.lg-baekje{background:var(--baekje-soft);border-color:var(--baekje)!important}
+.lg-goguryeo{background:var(--goguryeo-soft);border-color:var(--goguryeo)!important}
+.map-note{font-size:11.5px;color:var(--muted);margin:0}
+.ju{cursor:pointer}
+.ju rect{fill:var(--surface);stroke:var(--line);stroke-width:1.5;transition:fill .2s}
+.show-origin .ju.o-silla rect{fill:var(--silla-soft);stroke:var(--silla)}
+.show-origin .ju.o-baekje rect{fill:var(--baekje-soft);stroke:var(--baekje)}
+.show-origin .ju.o-goguryeo rect{fill:var(--goguryeo-soft);stroke:var(--goguryeo)}
+.ju.sel rect{stroke:var(--accent);stroke-width:3.5}
+.ju:focus{outline:none}
+.ju:focus-visible rect{stroke:var(--accent);stroke-width:3.5;stroke-dasharray:4 3}
+.ju-name{font-family:var(--font-display);font-weight:700;font-size:15px;fill:var(--ink)}
+.ju-seat{font-size:10.5px;fill:var(--muted)}
+.sg-dot{fill:var(--surface);stroke:var(--ink);stroke-width:2}
+.sg-label{font-size:11px;font-weight:600;fill:var(--ink)}
+.cap-dot{fill:var(--bad)}
+.cap-ring{fill:none;stroke:var(--bad);stroke-width:1.5}
+.cap-label{font-size:12px;font-weight:700;fill:var(--bad)}
+.link-line{stroke:var(--bad);stroke-width:1.5;stroke-dasharray:4 4;opacity:0;transition:opacity .25s}
+.show-lines .link-line{opacity:.8}
+.north{font-size:11px;fill:var(--muted)}
+.info{display:flex;flex-direction:column;gap:14px;min-width:0}
+.info-card{border:1px solid var(--line);border-radius:8px;padding:14px}
+.info-card h4{font-family:var(--font-display);font-size:18px}
+.info-card dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:8px 0 0;font-size:14px}
+.info-card dt{color:var(--muted)}
+.info-card dd{margin:0}
+.check-q{border-top:1px solid var(--line);padding-top:12px}
+.check-q p{margin:0 0 8px;font-weight:600}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:6px;margin-bottom:6px;cursor:pointer;font-size:14px;background:var(--surface)}
+.opt input{margin-top:4px;accent-color:var(--accent);flex:none}
+.opt:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.opt.ok{border-color:var(--good);background:var(--good-soft)}
+.opt.no{border-color:var(--bad);background:var(--bad-soft)}
+
+/* 탐구 3: 연표 */
+.tl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:tl}
+.tl li{display:grid;grid-template-columns:28px minmax(0,1fr) auto auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--surface)}
+.tl li.ok{border-color:var(--good);background:var(--good-soft)}
+.tl li.no{border-color:var(--bad);background:var(--bad-soft)}
+.tl .ord{font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;text-align:center}
+.tl .yr{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.mv{display:flex;gap:4px}
+.mv button{appearance:none;width:34px;height:30px;border:1px solid var(--line);background:var(--surface-2);border-radius:5px;cursor:pointer;font-size:14px}
+.mv button:disabled{opacity:.35;cursor:not-allowed}
+
+/* 탐구 4: 발해 */
+.match{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px}
+.match h4{font-size:13px;color:var(--muted);font-weight:600;margin-bottom:6px}
+.col{display:flex;flex-direction:column;gap:6px;min-width:0}
+.m-item{appearance:none;display:flex;gap:8px;align-items:center;justify-content:space-between;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:8px 10px;cursor:pointer;text-align:left;min-height:44px}
+.m-item .nm{font-weight:600}
+.m-item .role{display:block;font-size:12px;color:var(--muted);font-weight:400}
+.m-left .m-item{background:var(--balhae-soft);border-color:var(--balhae)}
+.m-item[aria-pressed="true"]{box-shadow:0 0 0 2px var(--accent)}
+.m-item.ok{border-color:var(--good);background:var(--good-soft)}
+.m-item.no{border-color:var(--bad);background:var(--bad-soft)}
+.pair{font-size:12px;font-weight:700;min-width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;background:var(--accent);color:var(--on-accent);flex:none}
+.pair:empty{background:transparent;border:1px dashed var(--line)}
+.insight{margin-top:14px;border:1px solid var(--balhae);border-radius:8px;padding:14px;background:var(--balhae-soft)}
+.insight h4{font-family:var(--font-display);font-size:16px;margin-bottom:8px;color:var(--balhae)}
+.insight ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.org{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0;font-size:13px}
+.org span{border:1px solid var(--balhae);border-radius:5px;padding:3px 8px;background:var(--surface)}
+
+/* 확인 문제 */
+.q{display:flex;flex-direction:column;gap:10px}
+.q-head{display:flex;gap:10px;align-items:center}
+.qno{width:26px;height:26px;border-radius:50%;background:var(--ink);color:var(--surface);font-weight:700;font-size:13px;display:grid;place-items:center;flex:none}
+.tag{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:1px 7px}
+.stem{font-weight:600;margin:0}
+.source{border-left:3px solid var(--line);background:var(--bg);padding:10px 14px;font-size:14.5px;border-radius:0 6px 6px 0}
+.source cite{display:block;font-size:12px;color:var(--muted);font-style:normal;margin-top:4px}
+.bogi{border:1px solid var(--line);border-radius:6px;padding:10px 14px;font-size:14.5px}
+.bogi p{margin:2px 0}
+.bogi-t{font-size:12px;color:var(--muted);margin-bottom:4px!important}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+@media (max-width:620px){.opts{grid-template-columns:1fr}}
+.opts .opt{margin:0}
+.q.ok{border-color:var(--good)} .q.no{border-color:var(--bad)}
+.q-feedback{font-size:14px;border-radius:6px;padding:10px 12px;background:var(--surface-2)}
+.q-feedback b.ok{color:var(--good)} .q-feedback b.no{color:var(--bad)}
+.submit-bar{position:sticky;bottom:0;z-index:15;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 14px rgba(0,0,0,.06)}
+
+/* 결과 */
+.overlay{position:fixed;inset:0;z-index:50;background:var(--shade);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:max(24px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.result{background:var(--surface);border-radius:12px;max-width:640px;width:100%;padding:22px;display:flex;flex-direction:column;gap:16px;border:1px solid var(--line)}
+.result h2{font-size:22px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:10px;text-align:center}
+.stat .v{font-family:var(--font-display);font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;display:block}
+.stat .k{font-size:12px;color:var(--muted)}
+.rlist{display:flex;flex-direction:column;gap:6px;font-size:14px;margin:0;padding:0;list-style:none}
+.rlist li{border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+.rlist li.no{border-color:var(--bad);background:var(--bad-soft)}
+.rlist li.ok{border-color:var(--good);background:var(--good-soft)}
+.copybox{width:100%;min-height:120px;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line);border-radius:6px;padding:8px;background:var(--bg);color:var(--ink)}
+.confirm-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px}
+
+footer{border-top:1px solid var(--line);background:var(--surface)}
+footer .wrap{padding-block:16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--muted)}
+.linkish{appearance:none;background:none;border:0;color:var(--bad);text-decoration:underline;cursor:pointer;font-size:12.5px;padding:0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="title-block">
+      <p class="eyebrow">Ⅰ. 전근대 한국사의 이해 · 1. 고대 국가의 지배 체제</p>
+      <h1><span class="unit-no">03</span>남북국의 성립과 발전</h1>
+      <p class="pages">교과서 16~19쪽 · 정리 → 탐구 → 확인 순서로 진행합니다</p>
+    </div>
+    <div class="student" role="group" aria-label="학생 정보">
+      <label for="st-cls">학년-반<input id="st-cls" type="text" placeholder="1-2" autocomplete="off"></label>
+      <label for="st-num">번호<input id="st-num" type="text" inputmode="numeric" placeholder="15" autocomplete="off"></label>
+      <label for="st-name">이름<input id="st-name" type="text" placeholder="이름" autocomplete="off"></label>
+      <span class="saved-note" id="saved-note">입력하면 이 기기에 자동 저장</span>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="학습 단계">
+  <div class="wrap tabrow" role="tablist">
+    <button class="tab" role="tab" id="tab-sheet" data-go="sheet" aria-selected="true"><span class="step">1</span>정리 학습지 <span class="cnt" id="cnt-sheet"></span></button>
+    <button class="tab" role="tab" id="tab-explore" data-go="explore" aria-selected="false"><span class="step">2</span>탐구 활동 <span class="cnt" id="cnt-explore"></span></button>
+    <button class="tab" role="tab" id="tab-quiz" data-go="quiz" aria-selected="false"><span class="step">3</span>확인 문제 <span class="cnt" id="cnt-quiz"></span></button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ============ 1. 정리 학습지 ============ -->
+<section class="view" id="view-sheet" role="tabpanel" aria-labelledby="tab-sheet">
+  <div class="view-head">
+    <p class="eyebrow">1단계 · 정리 학습지</p>
+    <h2>빈칸 ❶~❼을 채우며 단원을 정리하세요</h2>
+    <p class="lede">교과서를 보며 채운 뒤 [빈칸 확인]을 누르면 맞은 칸과 틀린 칸만 알려 줍니다. 정답은 보여 주지 않으며, 틀린 칸에서만 첫 글자 힌트를 열 수 있습니다.</p>
+  </div>
+
+  <article class="panel sheet">
+    <h3 class="sec-title"><span class="sec-no">1</span>통일 신라, 통치 체제와 군사 조직을 개편하다</h3>
+    <h4>1) 왕권 강화</h4>
+    <ol>
+      <li><b>태종 무열왕</b>: 최초의 진골 출신 왕, 통일 전쟁 중 왕권 강화, 이후 무열왕 직계가 왕위 세습</li>
+      <li><b>문무왕</b>: 통일 완수</li>
+      <li><span data-blank="w1"></span>: 김흠돌의 난 진압(진골 귀족 세력 숙청), 중앙 정치 기구 정비, 지방 행정 조직 마련, 군사 조직 정비, 국학 설립, 관료에게 토지 지급, 녹읍 폐지</li>
+    </ol>
+    <h4>2) 체제 정비: 넓어진 영토와 늘어난 인구를 효과적으로 통치</h4>
+    <div class="table-scroll">
+      <table class="sheet-table">
+        <tr><th scope="row">중앙</th><td><ul>
+          <li>국왕 직속 기구인 <b>집사부</b> 중심으로 정치 운영, 아래에 13부를 두어 행정 업무 담당</li>
+          <li>집사부의 장관 <b>시중</b>의 권한 강화 → 화백 회의와 그 대표자 <b>상대등</b>의 기능 약화</li>
+          <li><b>사정부</b> 설치: 관리를 감찰하는 기구</li></ul></td></tr>
+        <tr><th scope="row">지방</th><td><ul>
+          <li><b>9주</b>: 전국을 9주로 나누고 아래에 군과 현을 두어 지방관 파견 (이론상 옛 신라·고구려·백제 땅에 3개 주씩 할당)</li>
+          <li><span data-blank="w2"></span>: 수도 금성이 동쪽에 치우친 약점 보완, 지방 세력 회유·통제를 위해 주요 지역에 설치</li>
+          <li>향·부곡 등 행정 구역 설치, 군·현과 소경 아래에 말단 행정 구역 <b>촌</b> 설치</li>
+          <li><b>외사정</b>을 보내 지방관 감찰</li>
+          <li><b>상수리 제도</b>: 지방 세력을 일정 기간 수도에 올라오게 하여 견제</li></ul></td></tr>
+        <tr><th scope="row">군사</th><td><ul>
+          <li><span data-blank="w3"></span>: 중앙군, 민족 융합 (옛 고구려·백제인과 말갈인도 포함)</li>
+          <li><b>10정</b>: 지방군, 각 주에 1정씩 배치, 국경 지대인 한주에는 2정 배치</li></ul></td></tr>
+      </table>
+    </div>
+
+    <h3 class="sec-title"><span class="sec-no">2–3</span>관료와 백성에게 토지를 나누어 주고, 촌락 문서로 세금을 거두다</h3>
+    <h4>1) 토지 제도</h4>
+    <div class="table-scroll">
+      <table class="sheet-table">
+        <tr><th scope="row">목적</th><td>귀족 세력의 경제적 기반 약화, 국가의 지배력 강화</td></tr>
+        <tr><th scope="row">개편</th><td><ul>
+          <li>신문왕: 관료에게 <span data-blank="w4"></span> 지급 → 녹읍 폐지, 녹봉 지급</li>
+          <li>성덕왕: 백성에게 <b>정전</b> 지급</li>
+          <li>8세기 이후: 귀족의 반발, 녹봉 지급의 번거로움으로 <b>녹읍 부활</b></li></ul></td></tr>
+      </table>
+    </div>
+    <h4>2) 수취 제도</h4>
+    <div class="table-scroll">
+      <table class="sheet-table">
+        <tr><th scope="row">세금</th><td>백성에게 조세, 공물, 역 부과</td></tr>
+        <tr><th scope="row">신라 촌락 문서</th><td><ul>
+          <li>작성 목적: 농민을 철저하게 파악하고 정확하게 세금 징수</li>
+          <li>특징: 인구, 토지 면적, 가축(소·말), 뽕나무·잣나무·가래나무 수를 <b>3년마다 촌주</b>가 조사해 기록</li></ul></td></tr>
+      </table>
+    </div>
+
+    <h3 class="sec-title"><span class="sec-no">4</span>신라가 동요하다</h3>
+    <dl class="dl-list">
+      <dt>신라 하대의 혼란</dt><dd>무열왕계 마지막 왕 혜공왕이 피살된 뒤 진골 귀족의 왕위 쟁탈전, 지방 통제력 약화 (김헌창의 난 등)</dd>
+      <dt>농민 반란</dt><dd>중앙 정부의 강압적 수취, 대토지를 가진 귀족의 착취 → 진성 여왕 때 원종과 애노의 난 등</dd>
+      <dt>호족 등장</dt><dd>지방에서 독립적 지배권 행사, 스스로 성주·장군이라 부르며 성과 군대 보유. 촌주·귀족·장군·도적 등 출신이 다양하며 선종 승려, 6두품과 함께 새 사회 건설을 꾀함</dd>
+      <dt>새로운 사상</dt><dd>불교 선종 유행, 풍수지리설 도입</dd>
+      <dt>6두품</dt><dd>골품제 사회 비판 → 당에 유학, 호족과 결탁하거나 은둔</dd>
+    </dl>
+
+    <h3 class="sec-title"><span class="sec-no">5</span>후삼국으로 분열되다</h3>
+    <div class="table-scroll">
+      <table class="sheet-table">
+        <tr><th scope="row">후백제</th><td><b>견훤</b>이 완산주(전주)에서 건국 (900)</td></tr>
+        <tr><th scope="row">후고구려</th><td><ul>
+          <li><span data-blank="w5"></span>가 송악(개성)에서 건국 (901)</li>
+          <li>이후 국호를 마진, 태봉으로 고치고 도읍을 철원으로 옮김</li>
+          <li>왕권을 지키려 호족을 탄압하고 스스로 미륵불이라 칭해 불교계의 반발을 삼</li>
+          <li>호족들이 정변을 일으켜 송악 출신 호족 <b>왕건</b>을 왕으로 추대</li></ul></td></tr>
+      </table>
+    </div>
+
+    <h3 class="sec-title"><span class="sec-no">6–7</span>발해가 건국되어 해동성국으로 발전하고, 통치 제도를 정비하다</h3>
+    <div class="table-scroll">
+      <table class="sheet-table">
+        <tr><th scope="row">건국</th><td><ul>
+          <li><span data-blank="w6"></span>이 동모산 인근에서 건국 (698), 고구려 유민 + 말갈인</li>
+          <li>고구려 계승 근거: 외교 문서, 주변 나라의 인식, 유물·유적의 유사성 (교과서 19쪽)</li></ul></td></tr>
+        <tr><th scope="row">발전~멸망</th><td><ul>
+          <li>무왕: 영토 확장, 장문휴를 보내 당의 산둥 지방 공격</li>
+          <li>문왕: 당과 친선, 제도 정비</li>
+          <li>선왕: 전성기, 해동성국이라 불림</li>
+          <li>애왕(대인선): 9세기 말 이후 쇠퇴하다가 거란의 침략으로 멸망 (926)</li></ul></td></tr>
+        <tr><th scope="row">통치 체제</th><td><ul>
+          <li>중앙: 문왕 때 <span data-blank="w7"></span>로 정비 (당의 제도를 독자적으로 수용)</li>
+          <li>지방: 5경 15부 62주</li></ul></td></tr>
+      </table>
+    </div>
+  </article>
+
+  <div class="action-bar">
+    <p class="msg" id="ws-msg" role="status"></p>
+    <button class="btn" id="ws-check" type="button">빈칸 확인</button>
+    <button class="btn ghost" type="button" data-go="explore">다음: 탐구 활동 →</button>
+  </div>
+</section>
+
+<!-- ============ 2. 탐구 활동 ============ -->
+<section class="view" id="view-explore" role="tabpanel" aria-labelledby="tab-explore" hidden>
+  <div class="view-head">
+    <p class="eyebrow">2단계 · 탐구 활동</p>
+    <h2>정리한 내용을 직접 분류하고, 배치하고, 연결해 보세요</h2>
+    <p class="lede">네 활동 모두 [확인]으로 스스로 점검할 수 있고, 다 맞히면 완료로 표시됩니다. 완료 여부는 제출 결과에 함께 기록됩니다.</p>
+  </div>
+
+  <!-- 탐구 1 -->
+  <article class="panel" id="act-kings">
+    <div class="act-head">
+      <div><p class="eyebrow">탐구 1 · 통일 신라의 왕권 강화</p><h3>누가 한 일일까요?</h3>
+        <p>카드를 하나 누른 뒤, 그 일을 한 왕의 칸 제목을 누르세요. 놓은 카드를 다시 누르면 위로 돌아갑니다.</p></div>
+      <span class="chip" id="chip-kings">진행 전</span>
+    </div>
+    <div class="pool" id="k-pool" aria-label="아직 놓지 않은 카드"></div>
+    <div class="kings" id="k-targets"></div>
+    <div class="act-foot"><button class="btn small" type="button" id="k-check">확인</button><p class="msg" id="k-msg" role="status"></p></div>
+  </article>
+
+  <!-- 탐구 2 -->
+  <article class="panel" id="act-map">
+    <div class="act-head">
+      <div><p class="eyebrow">탐구 2 · 9주 5소경</p><h3>지도에서 5소경의 위치 찾기</h3>
+        <p>주를 눌러 정보를 보고, 위의 버튼으로 옛 삼국 영역과 금성–소경 연결선을 켜고 끌 수 있습니다. 관찰한 뒤 오른쪽 질문에 답하세요.</p></div>
+      <span class="chip" id="chip-map">진행 전</span>
+    </div>
+    <div class="map-layout">
+      <div class="map-box">
+        <div class="toggles">
+          <button class="toggle" type="button" id="tg-origin" aria-pressed="true">옛 삼국 영역 색칠</button>
+          <button class="toggle" type="button" id="tg-lines" aria-pressed="false">금성–소경 연결선</button>
+        </div>
+        <div id="map-svg"></div>
+        <div class="legend" id="map-legend">
+          <span><i class="lg-silla"></i>옛 신라·가야 땅</span>
+          <span><i class="lg-baekje"></i>옛 백제 땅</span>
+          <span><i class="lg-goguryeo"></i>옛 고구려 땅</span>
+        </div>
+        <p class="map-note">주의 위치 관계만 단순하게 나타낸 모식도이며 실제 경계와 면적은 다릅니다.</p>
+      </div>
+      <div class="info">
+        <div class="info-card" id="ju-info" aria-live="polite"></div>
+        <div class="check-q">
+          <p>신라가 5소경을 둔 까닭으로 알맞은 것을 모두 고르세요.</p>
+          <div id="mq-opts"></div>
+          <div class="act-foot"><button class="btn small" type="button" id="mq-check">확인</button><p class="msg" id="mq-msg" role="status"></p></div>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- 탐구 3 -->
+  <article class="panel" id="act-tl">
+    <div class="act-head">
+      <div><p class="eyebrow">탐구 3 · 신라 하대와 후삼국</p><h3>일어난 순서대로 배열하기</h3>
+        <p>화살표 버튼으로 사건을 위아래로 옮겨 오래된 것부터 차례로 놓으세요. 다 맞히면 연도가 나타납니다.</p></div>
+      <span class="chip" id="chip-tl">진행 전</span>
+    </div>
+    <ol class="tl" id="tl-list"></ol>
+    <div class="act-foot"><button class="btn small" type="button" id="tl-check">확인</button><p class="msg" id="tl-msg" role="status"></p></div>
+  </article>
+
+  <!-- 탐구 4 -->
+  <article class="panel" id="act-bh">
+    <div class="act-head">
+      <div><p class="eyebrow">탐구 4 · 발해의 3성 6부</p><h3>발해 기구와 당 기구 짝짓기</h3>
+        <p>왼쪽 발해 기구를 누른 뒤, 그에 해당하는 오른쪽 당 기구를 누르세요. 당 기구 아래의 역할 설명이 단서입니다. 짝지은 발해 기구를 다시 누르면 풀립니다.</p></div>
+      <span class="chip" id="chip-bh">진행 전</span>
+    </div>
+    <div class="match">
+      <div class="col m-left"><h4>발해</h4><div class="col" id="bh-left"></div></div>
+      <div class="col m-right"><h4>당</h4><div class="col" id="bh-right"></div></div>
+    </div>
+    <div class="act-foot"><button class="btn small" type="button" id="bh-check">확인</button><p class="msg" id="bh-msg" role="status"></p></div>
+    <div class="insight" id="bh-insight" hidden>
+      <h4>당의 제도를 받아들였지만, 운영은 발해식</h4>
+      <div class="org" aria-label="발해 중앙 관제 구성">
+        <span>정당성 · 좌사정 → 충부 · 인부 · 의부</span>
+        <span>정당성 · 우사정 → 지부 · 예부 · 신부</span>
+      </div>
+      <ul>
+        <li>6부의 이름을 충·인·의·지·예·신 같은 유교 덕목으로 지었습니다.</li>
+        <li>정당성 아래 좌사정과 우사정이 각각 3부씩 나누어 맡는 이원적 구조였습니다.</li>
+        <li>정당성의 장관인 대내상이 국정을 총괄하여, 선조성·중대성보다 정당성의 위상이 높았습니다.</li>
+      </ul>
+    </div>
+  </article>
+
+  <div class="action-bar">
+    <button class="btn ghost" type="button" data-go="sheet">← 정리 학습지</button>
+    <button class="btn" type="button" data-go="quiz">다음: 확인 문제 →</button>
+  </div>
+</section>
+
+<!-- ============ 3. 확인 문제 ============ -->
+<section class="view" id="view-quiz" role="tabpanel" aria-labelledby="tab-quiz" hidden>
+  <div class="view-head">
+    <p class="eyebrow">3단계 · 확인 문제</p>
+    <h2>교과서 확인 문제 3개와 적용 문제 6개</h2>
+    <p class="lede">모두 푼 뒤 아래 [제출하고 결과 보기]를 누르세요. 제출하면 문항별 해설이 열리고, 선생님께 낼 결과 요약을 복사할 수 있습니다.</p>
+  </div>
+  <div class="view" id="quiz-list"></div>
+  <div class="submit-bar action-bar">
+    <p class="msg" id="sub-msg" role="status"></p>
+    <button class="btn ghost" type="button" id="retry-btn" hidden>확인 문제 다시 풀기</button>
+    <button class="btn" type="button" id="submit-btn">제출하고 결과 보기</button>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>답안은 이 브라우저에만 저장됩니다. 여러 학생이 같은 기기를 쓰면 마친 뒤 지워 주세요.</span>
+    <span id="clear-area"><button class="linkish" type="button" id="clear-btn">이 기기의 내 답안 모두 지우기</button></span>
+  </div>
+</footer>
+
+<div class="overlay" id="result" hidden role="dialog" aria-modal="true" aria-labelledby="result-title">
+  <div class="result">
+    <div>
+      <p class="eyebrow" id="r-who"></p>
+      <h2 id="result-title">학습 결과</h2>
+    </div>
+    <div class="stats" id="r-stats"></div>
+    <div id="r-detail"></div>
+    <div>
+      <p class="eyebrow" style="margin-bottom:6px">선생님께 낼 결과 요약</p>
+      <textarea class="copybox" id="r-copy" readonly aria-label="결과 요약"></textarea>
+    </div>
+    <div class="action-bar">
+      <p class="msg" id="r-msg" role="status"></p>
+      <button class="btn ghost" type="button" id="r-close">닫기</button>
+      <button class="btn" type="button" id="r-copy-btn">결과 요약 복사</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var KEY='nambuk03-v1';
+function defaults(){return {student:{cls:'',num:'',name:''},ws:{},wsHints:{},quiz:{},done:{kings:false,map:false,timeline:false,balhae:false},submits:0,locked:false};}
+var S=defaults();
+try{var raw=localStorage.getItem(KEY);if(raw){var p=JSON.parse(raw);S=Object.assign(defaults(),p);S.done=Object.assign(defaults().done,p.done||{});S.student=Object.assign(defaults().student,p.student||{});}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function $(s){return document.querySelector(s);}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function norm(s){return String(s||'').replace(/[\s()（）·.,\-_'"‘’“”]/g,'').toLowerCase();}
+function setMsg(el,text,kind){el.textContent=text;el.className='msg'+(kind?' '+kind:'');}
+
+/* ---------- 학생 정보 ---------- */
+var stIds={cls:'st-cls',num:'st-num',name:'st-name'};
+Object.keys(stIds).forEach(function(k){
+  var el=document.getElementById(stIds[k]);
+  el.value=S.student[k]||'';
+  el.addEventListener('input',function(){S.student[k]=el.value.trim();save();$('#saved-note').textContent='저장됨';});
+});
+
+/* ---------- 탭 ---------- */
+var VIEWS=['sheet','explore','quiz'];
+function show(v,scroll){
+  if(VIEWS.indexOf(v)<0)v='sheet';
+  VIEWS.forEach(function(x){document.getElementById('view-'+x).hidden=(x!==v);document.getElementById('tab-'+x).setAttribute('aria-selected',x===v?'true':'false');});
+  if(scroll)window.scrollTo({top:0,behavior:'smooth'});
+}
+document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-go]');if(!b)return;
+  var v=b.getAttribute('data-go');
+  if(location.hash==='#'+v)show(v,true);else{location.hash=v;window.scrollTo({top:0,behavior:'smooth'});}
+});
+window.addEventListener('hashchange',function(){show(location.hash.slice(1));});
+show(location.hash.slice(1));
+
+/* ---------- 1. 정리 학습지 ---------- */
+var WS=[
+  {id:'w1',n:'❶',acc:['신문왕']},
+  {id:'w2',n:'❷',acc:['5소경','오소경']},
+  {id:'w3',n:'❸',acc:['9서당','구서당']},
+  {id:'w4',n:'❹',acc:['관료전']},
+  {id:'w5',n:'❺',acc:['궁예']},
+  {id:'w6',n:'❻',acc:['대조영','고왕','고왕대조영']},
+  {id:'w7',n:'❼',acc:['3성6부','3성6부제','3성6부체제','삼성육부','삼성육부제']}
+];
+var WSMAP={};WS.forEach(function(w){WSMAP[w.id]=w;});
+function wsOk(id){return WSMAP[id].acc.indexOf(norm(S.ws[id]))>=0;}
+document.querySelectorAll('[data-blank]').forEach(function(slot){
+  var id=slot.getAttribute('data-blank'),w=WSMAP[id];
+  slot.outerHTML='<span class="blank-wrap">(<span class="bn">'+w.n+'</span><input class="blank" id="'+id+'" type="text" autocomplete="off" aria-label="빈칸 '+w.n+'">)<span class="mark" id="'+id+'-m" aria-hidden="true"></span><span id="'+id+'-h"></span></span>';
+});
+WS.forEach(function(w){
+  var el=document.getElementById(w.id);
+  el.value=S.ws[w.id]||'';
+  el.addEventListener('input',function(){S.ws[w.id]=el.value;save();el.classList.remove('ok','no');document.getElementById(w.id+'-m').textContent='';document.getElementById(w.id+'-m').className='mark';counts();});
+});
+$('#view-sheet').addEventListener('click',function(e){
+  var h=e.target.closest('.hint-btn');if(!h)return;
+  var id=h.getAttribute('data-h');S.wsHints[id]=true;save();
+  var first=WSMAP[id].acc[0].charAt(0);
+  document.getElementById(id).placeholder=first+'…';
+  h.replaceWith(document.createTextNode(''));
+  document.getElementById(id).focus();
+});
+$('#ws-check').addEventListener('click',function(){
+  var filled=0,right=0;
+  WS.forEach(function(w){
+    var el=document.getElementById(w.id),m=document.getElementById(w.id+'-m'),hs=document.getElementById(w.id+'-h');
+    hs.innerHTML='';
+    if(!norm(S.ws[w.id])){el.classList.remove('ok','no');m.textContent='';return;}
+    filled++;
+    var ok=wsOk(w.id);if(ok)right++;
+    el.classList.toggle('ok',ok);el.classList.toggle('no',!ok);
+    m.textContent=ok?'○':'×';m.className='mark '+(ok?'ok':'no');
+    if(!ok&&!S.wsHints[w.id])hs.innerHTML='<button class="hint-btn" type="button" data-h="'+w.id+'">첫 글자 힌트</button>';
+  });
+  var msg=$('#ws-msg');
+  if(filled===0)setMsg(msg,'아직 채운 빈칸이 없습니다.','no');
+  else if(right===WS.length)setMsg(msg,'7칸 모두 맞았습니다. 탐구 활동으로 넘어가세요.','ok');
+  else setMsg(msg,'채운 '+filled+'칸 중 '+right+'칸이 맞았습니다.'+(filled<WS.length?' 빈칸 '+(WS.length-filled)+'개가 남아 있습니다.':''),'no');
+});
+
+/* ---------- 탐구 공용 ---------- */
+var CHIP={kings:'chip-kings',map:'chip-map',timeline:'chip-tl',balhae:'chip-bh'};
+function chips(){Object.keys(CHIP).forEach(function(k){var c=document.getElementById(CHIP[k]);c.textContent=S.done[k]?'완료':'진행 전';c.classList.toggle('done',!!S.done[k]);});counts();}
+function finish(k){S.done[k]=true;save();chips();}
+
+/* ---------- 탐구 1: 왕 업적 분류 ---------- */
+var KT=[{id:'muyeol',name:'태종 무열왕'},{id:'munmu',name:'문무왕'},{id:'sinmun',name:'신문왕'},{id:'seongdeok',name:'성덕왕'}];
+var KC=[
+  {id:'c1',t:'최초의 진골 출신 왕으로 즉위',a:'muyeol'},
+  {id:'c2',t:'관료에게 관료전 지급, 녹읍 폐지',a:'sinmun'},
+  {id:'c3',t:'당 세력을 몰아내고 삼국 통일 완수',a:'munmu'},
+  {id:'c4',t:'백성에게 정전 지급',a:'seongdeok'},
+  {id:'c5',t:'김흠돌의 난 진압, 진골 귀족 숙청',a:'sinmun'},
+  {id:'c6',t:'유학 교육 기관인 국학 설립',a:'sinmun'},
+  {id:'c7',t:'이후 직계 자손이 왕위를 잇는 계기 마련',a:'muyeol'},
+  {id:'c8',t:'9주 5소경으로 지방 행정 조직 정비',a:'sinmun'}
+];
+var K={place:{},sel:null,marks:{}};
+function renderKings(){
+  var pool=KC.filter(function(c){return !K.place[c.id];});
+  $('#k-pool').innerHTML=pool.map(function(c){return '<button class="card" type="button" data-card="'+c.id+'" aria-pressed="'+(K.sel===c.id)+'">'+esc(c.t)+'</button>';}).join('');
+  $('#k-targets').innerHTML=KT.map(function(t){
+    var placed=KC.filter(function(c){return K.place[c.id]===t.id;});
+    return '<div class="king"><button class="king-head" type="button" data-king="'+t.id+'">'+t.name+'<span>여기에 놓기</span></button><div class="king-drop">'+
+      placed.map(function(c){var m=K.marks[c.id];return '<button class="card'+(m===true?' ok':m===false?' no':'')+'" type="button" data-placed="'+c.id+'" aria-label="'+esc(c.t)+' 되돌리기">'+esc(c.t)+'</button>';}).join('')+'</div></div>';
+  }).join('');
+}
+$('#act-kings').addEventListener('click',function(e){
+  var c=e.target.closest('[data-card]'),k=e.target.closest('[data-king]'),p=e.target.closest('[data-placed]');
+  if(c){var id=c.getAttribute('data-card');K.sel=(K.sel===id)?null:id;renderKings();return;}
+  if(k){if(!K.sel){setMsg($('#k-msg'),'먼저 위에서 카드를 하나 고르세요.');return;}K.place[K.sel]=k.getAttribute('data-king');delete K.marks[K.sel];K.sel=null;renderKings();setMsg($('#k-msg'),'');return;}
+  if(p){var pid=p.getAttribute('data-placed');delete K.place[pid];delete K.marks[pid];renderKings();}
+});
+$('#k-check').addEventListener('click',function(){
+  var left=KC.filter(function(c){return !K.place[c.id];}).length;
+  if(left){setMsg($('#k-msg'),'아직 놓지 않은 카드가 '+left+'장 있습니다.','no');return;}
+  var wrong=0;KC.forEach(function(c){var ok=K.place[c.id]===c.a;K.marks[c.id]=ok;if(!ok)wrong++;});
+  renderKings();
+  if(wrong)setMsg($('#k-msg'),'틀린 카드 '+wrong+'장이 있습니다. 빨간 카드를 눌러 되돌린 뒤 다시 놓아 보세요.','no');
+  else{setMsg($('#k-msg'),'모두 맞았습니다. 신문왕 때 진골 귀족을 누르고 제도를 정비하면서 왕권이 크게 강화되었습니다.','ok');finish('kings');}
+});
+
+/* ---------- 탐구 2: 9주 5소경 ---------- */
+var JU=[
+  {id:'han',name:'한주',seat:'광주(경기)',o:'goguryeo',c:0,r:0,rs:1},
+  {id:'sak',name:'삭주',seat:'춘천',o:'goguryeo',c:1,r:0,rs:1},
+  {id:'myeong',name:'명주',seat:'강릉',o:'goguryeo',c:2,r:0,rs:2},
+  {id:'ung',name:'웅주',seat:'공주',o:'baekje',c:0,r:1,rs:1},
+  {id:'sang',name:'상주',seat:'상주',o:'silla',c:1,r:1,rs:2},
+  {id:'jeon',name:'전주',seat:'전주',o:'baekje',c:0,r:2,rs:1},
+  {id:'yang',name:'양주',seat:'양산',o:'silla',c:2,r:2,rs:2},
+  {id:'mu',name:'무주',seat:'광주(전남)',o:'baekje',c:0,r:3,rs:1},
+  {id:'gang',name:'강주',seat:'진주',o:'silla',c:1,r:3,rs:1}
+];
+var ORIGIN={silla:'옛 신라·가야 땅',baekje:'옛 백제 땅',goguryeo:'옛 고구려 땅'};
+var SG=[
+  {name:'중원경',now:'충주',ju:'han',x:108,y:106,lx:99,ly:110,a:'end'},
+  {name:'북원경',now:'원주',ju:'sak',x:138,y:106,lx:147,ly:110,a:'start'},
+  {name:'서원경',now:'청주',ju:'ung',x:108,y:200,lx:99,ly:204,a:'end'},
+  {name:'남원경',now:'남원',ju:'jeon',x:108,y:296,lx:99,ly:300,a:'end'},
+  {name:'금관경',now:'김해',ju:'yang',x:248,y:388,lx:257,ly:392,a:'start'}
+];
+var CAP={x:296,y:300};
+var mapSel='yang';
+function tile(j){var x=20+j.c*106,y=30+j.r*96,h=90+(j.rs-1)*96;return {x:x,y:y,w:100,h:h};}
+function buildMap(){
+  var s='<svg viewBox="0 0 352 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="통일 신라 9주 5소경 모식도">';
+  s+='<text class="north" x="332" y="18" text-anchor="end">↑ 북</text>';
+  JU.forEach(function(j){var t=tile(j);
+    s+='<g class="ju o-'+j.o+'" data-ju="'+j.id+'" tabindex="0" role="button" aria-label="'+j.name+'"><rect x="'+t.x+'" y="'+t.y+'" width="'+t.w+'" height="'+t.h+'" rx="8"/>'+
+      '<text class="ju-name" x="'+(t.x+50)+'" y="'+(t.y+26)+'" text-anchor="middle">'+j.name+'</text>'+
+      '<text class="ju-seat" x="'+(t.x+50)+'" y="'+(t.y+42)+'" text-anchor="middle">'+j.seat+'</text></g>';
+  });
+  SG.forEach(function(g){s+='<line class="link-line" x1="'+CAP.x+'" y1="'+CAP.y+'" x2="'+g.x+'" y2="'+g.y+'"/>';});
+  SG.forEach(function(g){s+='<circle class="sg-dot" cx="'+g.x+'" cy="'+g.y+'" r="5"/><text class="sg-label" x="'+g.lx+'" y="'+g.ly+'" text-anchor="'+g.a+'">'+g.name+'</text>';});
+  s+='<circle class="cap-ring" cx="'+CAP.x+'" cy="'+CAP.y+'" r="10"/><circle class="cap-dot" cx="'+CAP.x+'" cy="'+CAP.y+'" r="5"/><text class="cap-label" x="'+CAP.x+'" y="'+(CAP.y+26)+'" text-anchor="middle">금성(수도)</text>';
+  s+='</svg>';
+  $('#map-svg').innerHTML=s;
+  applyMap();
+}
+function applyMap(){
+  var box=$('#map-svg');
+  box.classList.toggle('show-origin',$('#tg-origin').getAttribute('aria-pressed')==='true');
+  box.classList.toggle('show-lines',$('#tg-lines').getAttribute('aria-pressed')==='true');
+  $('#map-legend').style.visibility=$('#tg-origin').getAttribute('aria-pressed')==='true'?'visible':'hidden';
+  box.querySelectorAll('.ju').forEach(function(g){g.classList.toggle('sel',g.getAttribute('data-ju')===mapSel);});
+  var j=JU.filter(function(x){return x.id===mapSel;})[0];
+  var sg=SG.filter(function(g){return g.ju===j.id;});
+  $('#ju-info').innerHTML='<p class="eyebrow">선택한 주</p><h4>'+j.name+'</h4><dl>'+
+    '<dt>옛 영역</dt><dd>'+ORIGIN[j.o]+'</dd>'+
+    '<dt>주의 중심지</dt><dd>'+j.seat+'</dd>'+
+    '<dt>설치한 소경</dt><dd>'+(sg.length?sg.map(function(g){return g.name+' (지금의 '+g.now+')';}).join(', '):'없음')+'</dd>'+
+    (j.id==='yang'?'<dt>수도</dt><dd>금성(지금의 경주)이 이 주에 있습니다</dd>':'')+'</dl>';
+}
+$('#map-svg').addEventListener('click',function(e){var g=e.target.closest('[data-ju]');if(g){mapSel=g.getAttribute('data-ju');applyMap();}});
+$('#map-svg').addEventListener('keydown',function(e){if(e.key!=='Enter'&&e.key!==' ')return;var g=e.target.closest('[data-ju]');if(g){e.preventDefault();mapSel=g.getAttribute('data-ju');applyMap();}});
+['tg-origin','tg-lines'].forEach(function(id){document.getElementById(id).addEventListener('click',function(){var b=this;b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')==='true'?'false':'true');applyMap();});});
+var MQ=[
+  {k:'a',t:'수도 금성이 국토의 동남쪽에 치우친 약점을 보완하려고',ok:true},
+  {k:'b',t:'옛 고구려·백제 지역 등의 지방 세력을 회유하고 통제하려고',ok:true},
+  {k:'c',t:'진골 귀족에게 녹읍을 나누어 주려고',ok:false},
+  {k:'d',t:'당과 맞닿은 국경을 지키는 군사 기지로 쓰려고',ok:false}
+];
+$('#mq-opts').innerHTML=MQ.map(function(o){return '<label class="opt" id="mq-'+o.k+'"><input type="checkbox" value="'+o.k+'"> <span>'+o.t+'</span></label>';}).join('');
+$('#mq-opts').addEventListener('change',function(){MQ.forEach(function(o){document.getElementById('mq-'+o.k).classList.remove('ok','no');});});
+$('#mq-check').addEventListener('click',function(){
+  var picked=[].map.call(document.querySelectorAll('#mq-opts input:checked'),function(i){return i.value;});
+  if(!picked.length){setMsg($('#mq-msg'),'하나 이상 고르세요.','no');return;}
+  var allOk=true;
+  MQ.forEach(function(o){var on=picked.indexOf(o.k)>=0,el=document.getElementById('mq-'+o.k);el.classList.remove('ok','no');
+    if(on&&o.ok)el.classList.add('ok');else if(on&&!o.ok){el.classList.add('no');allOk=false;}else if(!on&&o.ok)allOk=false;});
+  if(allOk){setMsg($('#mq-msg'),'맞습니다. 연결선을 켜 보면 금성이 동남쪽 끝에 있어 소경이 그 공백을 메우는 위치임을 알 수 있습니다.','ok');finish('map');}
+  else setMsg($('#mq-msg'),'아직 아닙니다. 고르지 않은 정답이 있거나, 틀린 보기를 골랐습니다. 연결선을 켜고 다시 살펴보세요.','no');
+});
+
+/* ---------- 탐구 3: 연표 ---------- */
+var TL=[
+  {id:'t1',t:'혜공왕이 피살되고 진골 귀족의 왕위 쟁탈전이 벌어짐',y:780},
+  {id:'t2',t:'웅천주 도독 김헌창이 반란을 일으킴',y:822},
+  {id:'t3',t:'청해진의 장보고가 반란을 일으킴',y:846},
+  {id:'t4',t:'진성 여왕 때 원종과 애노가 사벌주에서 봉기',y:889},
+  {id:'t5',t:'견훤이 완산주에서 후백제를 세움',y:900},
+  {id:'t6',t:'궁예가 송악에서 후고구려를 세움',y:901}
+];
+var TLM={};TL.forEach(function(x){TLM[x.id]=x;});
+var tlOrder=['t5','t2','t4','t1','t6','t3'],tlMarks=null;
+if(S.done.timeline)tlOrder=['t1','t2','t3','t4','t5','t6'];
+function renderTL(){
+  var solved=S.done.timeline;
+  $('#tl-list').innerHTML=tlOrder.map(function(id,i){var x=TLM[id],m=tlMarks?tlMarks[i]:null;
+    return '<li class="'+(m===true?'ok':m===false?'no':'')+'"><span class="ord">'+(i+1)+'</span><span>'+esc(x.t)+'</span><span class="yr">'+(solved?x.y+'년':'')+'</span>'+
+      '<span class="mv"><button type="button" data-up="'+i+'" aria-label="위로" '+(i===0?'disabled':'')+'>↑</button><button type="button" data-down="'+i+'" aria-label="아래로" '+(i===tlOrder.length-1?'disabled':'')+'>↓</button></span></li>';}).join('');
+}
+$('#tl-list').addEventListener('click',function(e){
+  var u=e.target.closest('[data-up]'),d=e.target.closest('[data-down]'),i,j;
+  if(u){i=+u.getAttribute('data-up');j=i-1;}else if(d){i=+d.getAttribute('data-down');j=i+1;}else return;
+  var t=tlOrder[i];tlOrder[i]=tlOrder[j];tlOrder[j]=t;tlMarks=null;renderTL();
+  var btn=$('#tl-list').querySelector('[data-'+(u?'up':'down')+'="'+j+'"]');if(btn&&!btn.disabled)btn.focus();
+});
+$('#tl-check').addEventListener('click',function(){
+  var sorted=TL.slice().sort(function(a,b){return a.y-b.y;});
+  tlMarks=tlOrder.map(function(id,i){return sorted[i].id===id;});
+  var wrong=tlMarks.filter(function(x){return !x;}).length;
+  if(!wrong){finish('timeline');setMsg($('#tl-msg'),'정확합니다. 중앙의 왕위 다툼이 지방 반란과 농민 봉기로 번지고, 결국 후삼국 분열로 이어졌습니다.','ok');}
+  else setMsg($('#tl-msg'),'자리가 틀린 사건이 '+wrong+'개 있습니다. 빨간 줄을 옮겨 보세요.','no');
+  renderTL();
+});
+
+/* ---------- 탐구 4: 발해 3성 6부 ---------- */
+var BH=[
+  {id:'b1',l:'정당성',r:'상서성',role:'정책 집행, 6부를 거느림'},
+  {id:'b2',l:'선조성',r:'문하성',role:'정책 심의'},
+  {id:'b3',l:'중대성',r:'중서성',role:'정책 입안'},
+  {id:'b4',l:'중정대',r:'어사대',role:'관리 감찰'},
+  {id:'b5',l:'문적원',r:'비서성',role:'서적·문서 관리'},
+  {id:'b6',l:'주자감',r:'국자감',role:'최고 교육 기관'}
+];
+var BHR=['b6','b3','b4','b1','b5','b2'];
+var B={pairs:{},sel:null,marks:null};
+if(S.done.balhae)BH.forEach(function(x){B.pairs[x.id]=x.id;});
+function renderBH(){
+  var idx={};BH.forEach(function(x,i){idx[x.id]=i+1;});
+  var rightOwner={};Object.keys(B.pairs).forEach(function(l){rightOwner[B.pairs[l]]=l;});
+  $('#bh-left').innerHTML=BH.map(function(x){var m=B.marks?B.marks[x.id]:null;
+    return '<button class="m-item'+(m===true?' ok':m===false?' no':'')+'" type="button" data-l="'+x.id+'" aria-pressed="'+(B.sel===x.id)+'"><span class="nm">'+x.l+'</span><span class="pair">'+(B.pairs[x.id]?idx[x.id]:'')+'</span></button>';}).join('');
+  $('#bh-right').innerHTML=BHR.map(function(rid){var x=BH.filter(function(y){return y.id===rid;})[0],own=rightOwner[rid];
+    return '<button class="m-item" type="button" data-r="'+rid+'"><span><span class="nm">'+x.r+'</span><span class="role">'+x.role+'</span></span><span class="pair">'+(own?idx[own]:'')+'</span></button>';}).join('');
+  $('#bh-insight').hidden=!S.done.balhae;
+}
+$('#act-bh').addEventListener('click',function(e){
+  var l=e.target.closest('[data-l]'),r=e.target.closest('[data-r]');
+  if(l){var id=l.getAttribute('data-l');if(B.pairs[id]){delete B.pairs[id];B.sel=null;}else B.sel=(B.sel===id)?null:id;B.marks=null;renderBH();return;}
+  if(r){if(!B.sel){setMsg($('#bh-msg'),'먼저 왼쪽 발해 기구를 고르세요.');return;}
+    var rid=r.getAttribute('data-r');Object.keys(B.pairs).forEach(function(k){if(B.pairs[k]===rid)delete B.pairs[k];});
+    B.pairs[B.sel]=rid;B.sel=null;B.marks=null;setMsg($('#bh-msg'),'');renderBH();}
+});
+$('#bh-check').addEventListener('click',function(){
+  var n=Object.keys(B.pairs).length;
+  if(n<BH.length){setMsg($('#bh-msg'),'아직 짝짓지 않은 기구가 '+(BH.length-n)+'개 있습니다.','no');return;}
+  B.marks={};var wrong=0;BH.forEach(function(x){var ok=B.pairs[x.id]===x.id;B.marks[x.id]=ok;if(!ok)wrong++;});
+  if(!wrong){finish('balhae');setMsg($('#bh-msg'),'모두 맞았습니다. 아래 설명에서 발해만의 특징을 확인하세요.','ok');}
+  else setMsg($('#bh-msg'),'틀린 짝이 '+wrong+'개 있습니다. 빨간 기구를 눌러 풀고 다시 연결하세요.','no');
+  renderBH();
+});
+
+/* ---------- 3. 확인 문제 ---------- */
+var QZ=[
+  {id:'q1',type:'text',tag:'교과서 확인 01',pre:'신라는 통일 이후 지방을 9주',post:'체제로 정비하였다.',acc:['5소경','오소경'],ans:'5소경',exp:'9주와 함께 주요 지역에 5소경을 두어 금성의 치우친 위치를 보완하였습니다.'},
+  {id:'q2',type:'text',tag:'교과서 확인 02',pre:'신라 하대에 중앙 정치가 혼란해지자 지방에서',post:'이 성장하였다.',acc:['호족'],ans:'호족',exp:'호족은 스스로 성주·장군이라 부르며 성과 군대를 거느리고 지역을 독자적으로 다스렸습니다.'},
+  {id:'q3',type:'text',tag:'교과서 확인 03',pre:'698년 동모산 인근에서 대조영이',post:'를 건국하였다.',acc:['발해'],ans:'발해',exp:'대조영은 고구려 유민과 말갈인을 이끌고 동모산 인근에서 발해를 세웠습니다.'},
+  {id:'q4',type:'mc',tag:'사료 읽기',stem:'밑줄 친 ‘왕’의 업적으로 옳은 것은?',
+    src:'<u>왕</u>이 즉위하자 김흠돌 등이 반역을 꾀하였으므로 이를 진압하였다. 왕은 교서를 내려 문무 관료에게 토지를 차등 있게 주었고, 2년 뒤에는 중앙과 지방 관리의 녹읍을 폐지하고 해마다 조(租)를 차등 있게 주도록 하였다.',cite:'『삼국사기』의 내용을 쉽게 풀어 씀',
+    opts:['최초의 진골 출신 왕으로 즉위하였다.','당 세력을 몰아내고 삼국 통일을 완수하였다.','유학 교육 기관인 국학을 설립하였다.','백성에게 정전을 지급하였다.'],ans:2,
+    exp:'김흠돌의 난 진압, 관료전 지급, 녹읍 폐지로 보아 ‘왕’은 신문왕입니다. ①은 태종 무열왕, ②는 문무왕, ④는 성덕왕의 업적입니다.'},
+  {id:'q5',type:'mc',tag:'자료 해석',stem:'신라 촌락 문서에 대한 설명으로 옳은 것만을 <보기>에서 고른 것은?',
+    bogi:['ㄱ. 촌주가 3년마다 조사하여 작성하였다.','ㄴ. 소와 말, 뽕나무·잣나무·가래나무의 수를 기록하였다.','ㄷ. 진골 귀족에게 녹읍을 나누어 주기 위해 작성하였다.','ㄹ. 토지 면적은 빼고 인구만 기록하였다.'],
+    opts:['ㄱ, ㄴ','ㄱ, ㄷ','ㄴ, ㄹ','ㄷ, ㄹ'],ans:0,
+    exp:'촌락 문서는 정확한 세금 징수를 위해 촌주가 3년마다 인구·토지 면적·가축·나무 수를 조사해 기록한 것입니다. ㄷ은 작성 목적이 틀렸고, ㄹ은 토지 면적도 기록했으므로 틀렸습니다.'},
+  {id:'q6',type:'mc',tag:'개념 적용',stem:'통일 신라의 군사 조직에 대한 설명으로 옳은 것은?',
+    opts:['9서당은 각 주에 하나씩 배치한 지방군이었다.','9서당은 신라인으로만 편성하였다.','10정은 국경 지대인 한주에 2정을 두었다.','10정은 수도를 지키는 중앙군이었다.'],ans:2,
+    exp:'9서당은 옛 고구려·백제인과 말갈인까지 포함한 중앙군이고, 10정은 각 주에 1정씩 두되 한주에만 2정을 둔 지방군입니다.'},
+  {id:'q7',type:'mc',tag:'개념 적용',stem:'신라 하대의 모습으로 옳지 않은 것은?',
+    opts:['지방에서 성주·장군을 자칭하는 호족이 성장하였다.','불교 선종과 풍수지리설이 유행하였다.','일부 6두품은 골품제를 비판하며 호족과 손잡았다.','집사부 시중의 권한이 강해지며 왕권이 안정되었다.'],ans:3,
+    exp:'시중의 권한 강화와 왕권 안정은 신문왕 무렵(신라 중대)의 모습입니다. 하대에는 왕위 쟁탈전으로 왕권이 약해졌습니다.'},
+  {id:'q8',type:'mc',tag:'사료 읽기',stem:'(가) 인물에 대한 설명으로 옳은 것은?',
+    src:'(가) 은/는 송악에서 나라를 세운 뒤 스스로 미륵불이라 일컬었다. 호족을 억누르고 불교계와도 갈등을 빚자, 결국 호족들이 정변을 일으켜 왕건을 왕으로 세웠다.',
+    opts:['완산주를 도읍으로 후백제를 세웠다.','도읍을 철원으로 옮겼다.','동모산 인근에서 나라를 세웠다.','김흠돌의 난을 진압하였다.'],ans:1,
+    exp:'(가)는 궁예입니다. 궁예는 국호를 마진, 태봉으로 바꾸고 도읍을 철원으로 옮겼습니다. ①은 견훤, ③은 대조영, ④는 신문왕입니다.'},
+  {id:'q9',type:'mc',tag:'역사적 판단',stem:'발해가 고구려를 계승하였음을 보여 주는 근거로 가장 적절한 것은?',
+    opts:['중앙 정치 조직을 3성 6부로 정비하였다.','일본에 보낸 외교 문서에서 스스로 ‘고려 국왕’이라 칭하였다.','최고 교육 기관으로 주자감을 두었다.','장문휴를 보내 당의 산둥 지방을 공격하였다.'],ans:1,
+    exp:'외교 문서에서 ‘고려(고구려) 국왕’을 칭한 것은 고구려 계승 의식을 보여 줍니다. ①③은 당 제도의 수용, ④는 무왕의 대외 활동입니다.'}
+];
+var NUM=['①','②','③','④'];
+function qOk(q){var v=S.quiz[q.id];if(q.type==='text')return q.acc.indexOf(norm(v))>=0;return v!==undefined&&v!==''&&+v===q.ans;}
+function qAnswered(q){var v=S.quiz[q.id];return q.type==='text'?!!norm(v):(v!==undefined&&v!=='');}
+function renderQuiz(){
+  $('#quiz-list').innerHTML=QZ.map(function(q,i){
+    var h='<article class="panel q" id="card-'+q.id+'"><div class="q-head"><span class="qno">'+(i+1)+'</span><span class="tag">'+q.tag+'</span></div>';
+    if(q.type==='text'){
+      h+='<p class="stem">빈칸에 들어갈 말을 쓰세요.</p><p style="margin:0">'+q.pre+' ( <input class="blank" id="'+q.id+'-in" type="text" autocomplete="off" aria-label="'+(i+1)+'번 답"> ) '+q.post+'</p>';
+    }else{
+      h+='<p class="stem">'+esc(q.stem)+'</p>';
+      if(q.src)h+='<blockquote class="source" style="margin:0">'+q.src+(q.cite?'<cite>'+q.cite+'</cite>':'')+'</blockquote>';
+      if(q.bogi)h+='<div class="bogi"><p class="bogi-t">&lt;보기&gt;</p>'+q.bogi.map(function(b){return '<p>'+esc(b)+'</p>';}).join('')+'</div>';
+      h+='<div class="opts">'+q.opts.map(function(o,k){return '<label class="opt" id="'+q.id+'-o'+k+'"><input type="radio" name="'+q.id+'" value="'+k+'"><span>'+NUM[k]+' '+esc(o)+'</span></label>';}).join('')+'</div>';
+    }
+    h+='<div class="q-feedback" id="'+q.id+'-fb" hidden></div></article>';return h;
+  }).join('');
+  QZ.forEach(function(q){
+    var v=S.quiz[q.id];
+    if(q.type==='text'){var el=document.getElementById(q.id+'-in');el.value=v||'';}
+    else if(v!==undefined&&v!==''){var r=document.querySelector('input[name="'+q.id+'"][value="'+v+'"]');if(r)r.checked=true;}
+  });
+  applyLock();
+}
+$('#quiz-list').addEventListener('input',onQuiz);
+$('#quiz-list').addEventListener('change',onQuiz);
+var pendingSubmit=false;
+function onQuiz(e){
+  var t=e.target;if(S.locked)return;
+  if(t.type==='radio')S.quiz[t.name]=t.value;
+  else if(t.id&&/-in$/.test(t.id))S.quiz[t.id.replace(/-in$/,'')]=t.value;
+  pendingSubmit=false;save();counts();
+}
+function applyLock(){
+  document.querySelectorAll('#quiz-list input').forEach(function(i){i.disabled=S.locked;});
+  $('#retry-btn').hidden=!S.locked;
+  $('#submit-btn').textContent=S.locked?'결과 다시 보기':'제출하고 결과 보기';
+  QZ.forEach(function(q){
+    var card=document.getElementById('card-'+q.id),fb=document.getElementById(q.id+'-fb');
+    card.classList.remove('ok','no');fb.hidden=true;
+    if(q.type==='mc')q.opts.forEach(function(_,k){document.getElementById(q.id+'-o'+k).classList.remove('ok','no');});
+    else document.getElementById(q.id+'-in').classList.remove('ok','no');
+    if(!S.locked)return;
+    var ok=qOk(q);card.classList.add(ok?'ok':'no');
+    if(q.type==='mc'){document.getElementById(q.id+'-o'+q.ans).classList.add('ok');var v=S.quiz[q.id];if(!ok&&v!==undefined&&v!=='')document.getElementById(q.id+'-o'+v).classList.add('no');}
+    else document.getElementById(q.id+'-in').classList.add(ok?'ok':'no');
+    fb.hidden=false;
+    fb.innerHTML='<b class="'+(ok?'ok':'no')+'">'+(ok?'정답':'오답')+'</b> · 정답: '+(q.type==='mc'?NUM[q.ans]:q.ans)+'<br>'+esc(q.exp);
+  });
+}
+
+/* ---------- 진행 현황 ---------- */
+function counts(){
+  var f=WS.filter(function(w){return !!norm(S.ws[w.id]);}).length;
+  $('#cnt-sheet').textContent=f+'/'+WS.length;
+  var d=Object.keys(S.done).filter(function(k){return S.done[k];}).length;
+  $('#cnt-explore').textContent=d+'/4';
+  var a=QZ.filter(qAnswered).length;
+  $('#cnt-quiz').textContent=a+'/'+QZ.length;
+}
+
+/* ---------- 제출 ---------- */
+function stamp(d){function p(n){return (n<10?'0':'')+n;}return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}
+function openResult(){
+  var wsR=WS.map(function(w){return {w:w,ok:wsOk(w.id)};});
+  var qR=QZ.map(function(q,i){return {q:q,i:i,ok:qOk(q)};});
+  var wsN=wsR.filter(function(x){return x.ok;}).length,qN=qR.filter(function(x){return x.ok;}).length;
+  var dKeys=[['kings','왕 업적 분류'],['map','9주 5소경'],['timeline','하대 연표'],['balhae','발해 관제']];
+  var dN=dKeys.filter(function(k){return S.done[k[0]];}).length;
+  var who=[S.student.cls,S.student.num?S.student.num+'번':'',S.student.name].filter(Boolean).join(' ');
+  $('#r-who').textContent=who+' · 제출 '+S.submits+'회차';
+  $('#r-stats').innerHTML=
+    '<div class="stat"><span class="v">'+wsN+'/'+WS.length+'</span><span class="k">정리 빈칸</span></div>'+
+    '<div class="stat"><span class="v">'+qN+'/'+QZ.length+'</span><span class="k">확인 문제</span></div>'+
+    '<div class="stat"><span class="v">'+dN+'/4</span><span class="k">탐구 활동 완료</span></div>';
+  var det='';
+  var wsWrong=wsR.filter(function(x){return !x.ok;});
+  det+='<p class="eyebrow" style="margin-bottom:6px">정리 학습지</p>';
+  det+=wsWrong.length?'<ul class="rlist">'+wsWrong.map(function(x){return '<li class="no">빈칸 '+x.w.n+' · 내 답: '+esc(S.ws[x.w.id]||'(비어 있음)')+' · 정답: '+WS_ANS[x.w.id]+'</li>';}).join('')+'</ul>':'<ul class="rlist"><li class="ok">7칸 모두 맞았습니다.</li></ul>';
+  var qWrong=qR.filter(function(x){return !x.ok;});
+  det+='<p class="eyebrow" style="margin:14px 0 6px">확인 문제</p>';
+  det+=qWrong.length?'<ul class="rlist">'+qWrong.map(function(x){return '<li class="no">'+(x.i+1)+'번 ('+x.q.tag+') · 정답 '+(x.q.type==='mc'?NUM[x.q.ans]:x.q.ans)+' — '+esc(x.q.exp)+'</li>';}).join('')+'</ul>':'<ul class="rlist"><li class="ok">9문항 모두 맞았습니다.</li></ul>';
+  var notDone=dKeys.filter(function(k){return !S.done[k[0]];});
+  if(notDone.length)det+='<p class="msg" style="margin-top:12px">아직 완료하지 않은 탐구 활동: '+notDone.map(function(k){return k[1];}).join(', ')+'</p>';
+  $('#r-detail').innerHTML=det;
+  var lines=[
+    '[한국사 03 남북국의 성립과 발전] '+who,
+    '제출 '+S.submits+'회차 · '+(S.lastAt||''),
+    '정리 빈칸 '+wsN+'/7 · 확인 문제 '+qN+'/9 · 탐구 활동 '+dN+'/4 완료',
+    '틀린 빈칸: '+(wsWrong.length?wsWrong.map(function(x){return x.w.n;}).join(' '):'없음'),
+    '틀린 문항: '+(qWrong.length?qWrong.map(function(x){return (x.i+1)+'번';}).join(', '):'없음'),
+    '힌트 사용: '+Object.keys(S.wsHints).length+'칸'
+  ];
+  $('#r-copy').value=lines.join('\n');
+  setMsg($('#r-msg'),'');
+  $('#result').hidden=false;
+  $('#r-close').focus();
+}
+var WS_ANS={w1:'신문왕',w2:'5소경',w3:'9서당',w4:'관료전',w5:'궁예',w6:'대조영',w7:'3성 6부'};
+$('#submit-btn').addEventListener('click',function(){
+  if(S.locked){openResult();return;}
+  var msg=$('#sub-msg');
+  if(!S.student.name){setMsg(msg,'맨 위에 이름을 먼저 입력하세요.','no');window.scrollTo({top:0,behavior:'smooth'});setTimeout(function(){$('#st-name').focus();},300);return;}
+  var left=QZ.filter(function(q){return !qAnswered(q);}).length;
+  if(left&&!pendingSubmit){pendingSubmit=true;setMsg(msg,'답하지 않은 문항이 '+left+'개 있습니다. 이대로 제출하려면 버튼을 한 번 더 누르세요.','no');return;}
+  pendingSubmit=false;S.submits+=1;S.locked=true;S.lastAt=stamp(new Date());save();
+  applyLock();setMsg(msg,'제출했습니다. 문항마다 해설이 열렸습니다.','ok');
+  openResult();
+});
+$('#retry-btn').addEventListener('click',function(){S.locked=false;S.quiz={};save();renderQuiz();counts();setMsg($('#sub-msg'),'답을 지웠습니다. 다시 풀어 보세요. 다음 제출은 '+(S.submits+1)+'회차로 기록됩니다.');window.scrollTo({top:document.getElementById('view-quiz').offsetTop-60,behavior:'smooth'});});
+$('#r-close').addEventListener('click',function(){$('#result').hidden=true;});
+$('#result').addEventListener('click',function(e){if(e.target.id==='result')$('#result').hidden=true;});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('#result').hidden)$('#result').hidden=true;});
+$('#r-copy-btn').addEventListener('click',function(){
+  var ta=$('#r-copy'),m=$('#r-msg');
+  function fallback(){ta.focus();ta.select();setMsg(m,'자동 복사가 막혀 있습니다. 선택된 글을 Ctrl+C(⌘+C)로 복사하세요.','no');}
+  try{navigator.clipboard.writeText(ta.value).then(function(){setMsg(m,'복사했습니다. 선생님이 안내한 곳에 붙여 넣으세요.','ok');},fallback);}catch(err){fallback();}
+});
+
+/* ---------- 전체 지우기 ---------- */
+function clearUI(){$('#clear-area').innerHTML='<button class="linkish" type="button" id="clear-btn">이 기기의 내 답안 모두 지우기</button>';}
+$('#clear-area').addEventListener('click',function(e){
+  var id=e.target.id;
+  if(id==='clear-btn'){$('#clear-area').innerHTML='<span class="confirm-row">이름과 모든 답안이 지워집니다. <button class="btn small" type="button" id="clear-yes">지우기</button><button class="btn small ghost" type="button" id="clear-no">취소</button></span>';return;}
+  if(id==='clear-no'){clearUI();return;}
+  if(id==='clear-yes'){
+    try{localStorage.removeItem(KEY);}catch(err){}
+    S=defaults();
+    Object.keys(stIds).forEach(function(k){document.getElementById(stIds[k]).value='';});
+    WS.forEach(function(w){var el=document.getElementById(w.id);el.value='';el.placeholder='';el.classList.remove('ok','no');document.getElementById(w.id+'-m').textContent='';document.getElementById(w.id+'-h').innerHTML='';});
+    setMsg($('#ws-msg'),'');
+    K={place:{},sel:null,marks:{}};renderKings();setMsg($('#k-msg'),'');
+    document.querySelectorAll('#mq-opts input').forEach(function(i){i.checked=false;});MQ.forEach(function(o){document.getElementById('mq-'+o.k).classList.remove('ok','no');});setMsg($('#mq-msg'),'');
+    tlOrder=['t5','t2','t4','t1','t6','t3'];tlMarks=null;renderTL();setMsg($('#tl-msg'),'');
+    B={pairs:{},sel:null,marks:null};renderBH();setMsg($('#bh-msg'),'');
+    renderQuiz();setMsg($('#sub-msg'),'');chips();clearUI();
+    $('#saved-note').textContent='모두 지웠습니다';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+});
+
+/* ---------- 시작 ---------- */
+renderKings();buildMap();renderTL();renderBH();renderQuiz();chips();
+})();
+</script>
