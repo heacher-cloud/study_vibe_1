@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>고등 한국사 스마트 학습지 - 중앙 집권적 고대 국가의 발전</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+            },
+            goguryeo: '#dc2626',
+            baekje: '#2563eb',
+            silla: '#d97706',
+            gaya: '#059669'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap');
+    body { font-family: 'Noto Sans KR', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    .century-btn.active {
+      background-color: #4f46e5;
+      color: white;
+      font-weight: 800;
+      box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+    }
+    .map-territory {
+      transition: all 0.4s ease;
+      cursor: pointer;
+    }
+    .map-territory:hover {
+      filter: brightness(1.15) drop-shadow(0 2px 8px rgba(0,0,0,0.2));
+    }
+    @media print {
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- 상단 네비게이션 & 학생 정보 바 -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <span class="bg-indigo-600 text-white text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+          교과서 12~15쪽
+        </span>
+        <div>
+          <h1 class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+            <span>Ⅰ. 전근대 한국사의 이해</span>
+            <span class="text-slate-300 font-normal">|</span>
+            <span class="text-indigo-700">02 중앙 집권적 고대 국가의 발전</span>
+          </h1>
+          <p class="text-xs text-slate-500">삼국과 가야의 건국부터 한강 유역 쟁탈전 및 삼국 통일까지</p>
+        </div>
+      </div>
+
+      <!-- 학생 인적사항 입력 바 -->
+      <div class="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200 text-sm">
+        <div class="flex items-center gap-1.5 px-2">
+          <label for="studentGrade" class="text-xs font-semibold text-slate-600">학년/반</label>
+          <input type="text" id="studentGrade" placeholder="예: 1-3" class="w-16 px-2 py-1 text-xs border border-slate-300 rounded focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div class="flex items-center gap-1.5 px-2">
+          <label for="studentNum" class="text-xs font-semibold text-slate-600">번호</label>
+          <input type="number" id="studentNum" placeholder="15" class="w-12 px-2 py-1 text-xs border border-slate-300 rounded focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div class="flex items-center gap-1.5 px-2">
+          <label for="studentName" class="text-xs font-semibold text-slate-600">이름</label>
+          <input type="text" id="studentName" placeholder="홍길동" class="w-20 px-2 py-1 text-xs border border-slate-300 rounded focus:ring-2 focus:ring-indigo-500 outline-none font-medium">
+        </div>
+        <button id="saveInfoBtn" onclick="saveStudentInfo()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 shadow-sm">
+          <i class="fa-solid fa-check"></i> 등록
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 메인 탭 네비게이션 -->
+  <div class="bg-white border-b border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 flex space-x-2 sm:space-x-4">
+      <button onclick="switchTab('simulation')" id="tab-btn-simulation" class="tab-btn border-b-2 border-indigo-600 text-indigo-700 font-bold py-3 px-3 text-sm flex items-center gap-2">
+        <i class="fa-solid fa-map-location-dot"></i> 1. 한강 유역 쟁탈전 & 사료 탐구 시뮬레이션
+      </button>
+      <button onclick="switchTab('worksheet')" id="tab-btn-worksheet" class="tab-btn border-b-2 border-transparent text-slate-500 hover:text-slate-800 font-semibold py-3 px-3 text-sm flex items-center gap-2">
+        <i class="fa-solid fa-book-open-reader"></i> 2. 개념 정리 학습지 (빈칸 채우기 ①~⑥)
+      </button>
+      <button onclick="switchTab('quiz')" id="tab-btn-quiz" class="tab-btn border-b-2 border-transparent text-slate-500 hover:text-slate-800 font-semibold py-3 px-3 text-sm flex items-center gap-2">
+        <i class="fa-solid fa-circle-question"></i> 3. 실전 확인 문제 & 테스트
+      </button>
+    </div>
+  </div>
+
+  <!-- 본문 컨테이너 -->
+  <main class="max-w-6xl mx-auto px-4 py-6 flex-1 w-full space-y-6">
+
+    <!-- ========================================== -->
+    <!-- 1. 한강 유역 쟁탈전 & 사료 탐구 시뮬레이션 -->
+    <!-- ========================================== -->
+    <section id="section-simulation" class="space-y-6">
+
+      <!-- 배너 안내 -->
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-5 rounded-2xl shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <span class="bg-indigo-500/30 text-indigo-200 text-xs px-2.5 py-0.5 rounded-full font-semibold border border-indigo-400/30">삼국 항쟁 시뮬레이터</span>
+          <h2 class="text-xl font-bold mt-1">4세기 ~ 6세기 한강 유역 주도권 다툼과 세기별 전성기</h2>
+          <p class="text-slate-300 text-xs sm:text-sm mt-0.5">시대를 클릭하여 삼국의 영토 변화와 동아시아 무역로, 금석문 비석을 탐구해보세요.</p>
+        </div>
+        <!-- 세기별 타임라인 선택기 -->
+        <div class="bg-white/10 p-1 rounded-xl flex gap-1 border border-white/15">
+          <button onclick="setCentury(4)" id="c-btn-4" class="century-btn active px-3 py-1.5 text-xs rounded-lg transition font-bold">
+            4C 백제 (근초고왕)
+          </button>
+          <button onclick="setCentury(5)" id="c-btn-5" class="century-btn px-3 py-1.5 text-xs rounded-lg transition font-medium text-slate-200 hover:text-white">
+            5C 고구려 (광개토·장수왕)
+          </button>
+          <button onclick="setCentury(6)" id="c-btn-6" class="century-btn px-3 py-1.5 text-xs rounded-lg transition font-medium text-slate-200 hover:text-white">
+            6C 신라 (진흥왕)
+          </button>
+          <button onclick="setCentury(7)" id="c-btn-7" class="century-btn px-3 py-1.5 text-xs rounded-lg transition font-medium text-slate-200 hover:text-white">
+            7C 삼국 통일기
+          </button>
+        </div>
+      </div>
+
+      <!-- 지도 및 상세 정보 패널 -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+        <div class="flex flex-col lg:flex-row gap-6">
+
+          <!-- 좌측: 인터랙티브 지도 -->
+          <div class="lg:w-1/2 flex flex-col items-center">
+            <div class="flex items-center justify-between w-full mb-2">
+              <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                <i class="fa-solid fa-shield-halved text-indigo-600"></i>
+                <span id="map-header-title">4세기 삼국과 가야 형세도 (백제의 전성기)</span>
+              </h3>
+              <span id="map-century-badge" class="text-xs bg-blue-100 text-blue-800 font-extrabold px-2 py-0.5 rounded">4세기 후반</span>
+            </div>
+
+            <!-- 동적 SVG 판도 지도 -->
+            <div class="relative w-full max-w-sm bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-center shadow-inner">
+              <svg viewBox="0 0 320 480" class="w-full h-auto drop-shadow select-none" xmlns="http://www.w3.org/2000/svg" id="dyn-svg-map">
+                <!-- 바다 및 지형 가이드 -->
+                <rect width="320" height="480" fill="#f8fafc" rx="8"/>
+                <text x="35" y="300" font-size="11" fill="#94a3b8" font-weight="700">황해</text>
+                <text x="260" y="240" font-size="11" fill="#94a3b8" font-weight="700">동해</text>
+
+                <!-- 주요 하천 라인: 한강, 대동강, 압록강, 낙동강 -->
+                <path d="M 100 230 Q 140 225 180 235" fill="none" stroke="#93c5fd" stroke-width="2.5" stroke-dasharray="3,2"/>
+                <text x="105" y="222" font-size="9" fill="#3b82f6" font-weight="bold">한강 유역 ★</text>
+
+                <path d="M 80 160 Q 120 150 160 145" fill="none" stroke="#93c5fd" stroke-width="2"/>
+                <text x="90" y="145" font-size="8" fill="#64748b">대동강 (평양)</text>
+
+                <!-- 고구려 권역 SVG -->
+                <g class="map-territory" onclick="inspectTerritory('goguryeo')" id="geo-goguryeo">
+                  <path id="path-goguryeo" d="M 50 40 L 250 40 L 230 190 L 80 185 Z" fill="#fecaca" stroke="#dc2626" stroke-width="2" opacity="0.85"/>
+                  <text id="txt-goguryeo" x="140" y="115" text-anchor="middle" font-size="16" font-weight="900" fill="#991b1b">고구려</text>
+                </g>
+
+                <!-- 백제 권역 SVG -->
+                <g class="map-territory" onclick="inspectTerritory('baekje')" id="geo-baekje">
+                  <path id="path-baekje" d="M 70 190 L 175 190 L 155 360 L 80 340 Z" fill="#bfdbfe" stroke="#2563eb" stroke-width="2.5" opacity="0.9"/>
+                  <text id="txt-baekje" x="120" y="265" text-anchor="middle" font-size="16" font-weight="900" fill="#1e40af">백제</text>
+                </g>
+
+                <!-- 신라 권역 SVG -->
+                <g class="map-territory" onclick="inspectTerritory('silla')" id="geo-silla">
+                  <path id="path-silla" d="M 175 220 L 235 220 L 225 360 L 165 350 Z" fill="#fed7aa" stroke="#ea580c" stroke-width="2" opacity="0.85"/>
+                  <text id="txt-silla" x="195" y="285" text-anchor="middle" font-size="14" font-weight="900" fill="#9a3412">신라</text>
+                </g>
+
+                <!-- 가야 연맹 권역 SVG -->
+                <g class="map-territory" onclick="inspectTerritory('gaya')" id="geo-gaya">
+                  <ellipse id="path-gaya" cx="155" cy="385" rx="22" ry="16" fill="#a7f3d0" stroke="#059669" stroke-width="2" opacity="0.9"/>
+                  <text id="txt-gaya" x="155" y="389" text-anchor="middle" font-size="11" font-weight="800" fill="#065f46">가야</text>
+                </g>
+
+                <!-- 비석 및 주요 사건 포인트 (동적 표시) -->
+                <g id="monument-points">
+                  <!-- JS로 세기별 랜드마크 마커 렌더링 -->
+                </g>
+              </svg>
+            </div>
+            <p class="text-xs text-slate-400 mt-2">지도의 국가 구역을 클릭하거나 상단 세기 버튼을 눌러보세요.</p>
+          </div>
+
+          <!-- 우측: 상세 데이터 & 주요 역사적 사실 카드 -->
+          <div class="lg:w-1/2 flex flex-col justify-between space-y-4">
+            <div id="sim-info-box" class="bg-slate-50 border border-slate-200 rounded-xl p-5 h-full">
+              <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                <div class="flex items-center gap-2">
+                  <span id="century-tag" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-blue-100 text-blue-800">4세기 주도국</span>
+                  <h4 id="century-title" class="text-lg font-extrabold text-slate-800">백제의 전성기 (근초고왕)</h4>
+                </div>
+                <span id="century-geo" class="text-xs text-slate-500 font-semibold">한강 유역 장악</span>
+              </div>
+
+              <!-- 핵심 내용 리스트 -->
+              <div class="mt-4 space-y-3 text-xs sm:text-sm text-slate-700">
+                <div class="flex">
+                  <span class="w-24 font-bold text-slate-600 shrink-0"><i class="fa-solid fa-crown text-amber-500 mr-1"></i>핵심 군주:</span>
+                  <span id="sim-king" class="font-bold text-slate-900">근초고왕 (4세기 후반)</span>
+                </div>
+                <div class="flex">
+                  <span class="w-24 font-bold text-slate-600 shrink-0"><i class="fa-solid fa-crosshairs text-rose-500 mr-1"></i>정복 활동:</span>
+                  <span id="sim-conquest" class="leading-relaxed">마한의 남은 소국 복속, 고구려 평양성 공격(고국원왕 전사시킴, 황해도 진출)</span>
+                </div>
+                <div class="flex">
+                  <span class="w-24 font-bold text-slate-600 shrink-0"><i class="fa-solid fa-ship text-blue-500 mr-1"></i>해상 교역로:</span>
+                  <span id="sim-trade" class="leading-relaxed">중국(동진) - 백제 - 가야 - 왜를 잇는 해상 무역로 확보 (왜왕에게 '칠지도' 하사)</span>
+                </div>
+                <div class="flex">
+                  <span class="w-24 font-bold text-slate-600 shrink-0"><i class="fa-solid fa-monument text-purple-600 mr-1"></i>대표 유물/기록:</span>
+                  <span id="sim-relic" class="font-semibold text-purple-900 bg-purple-50 px-2 py-0.5 rounded">칠지도 (왜와의 친선 교류 증표)</span>
+                </div>
+              </div>
+
+              <!-- 사료 돋보기 뷰어 -->
+              <div class="mt-4 pt-3 border-t border-slate-200 bg-white rounded-lg p-3 border border-slate-200">
+                <span class="text-xs font-bold text-indigo-700 block mb-1">
+                  <i class="fa-solid fa-magnifying-glass text-indigo-500 mr-1"></i><span id="doc-source-title">교과서 사료 돋보기: 백제의 해상 교류와 칠지도</span>
+                </span>
+                <p id="doc-source-body" class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-2.5 rounded border border-slate-100">
+                  근초고왕은 한강 유역의 풍부한 농업 생산력과 황해를 통한 해상 교역로를 바탕으로 동진과 수교하고 가야와 왜에 영향력을 행사하여 '칠지도'를 하사하였습니다.
+                </p>
+              </div>
+            </div>
+
+            <!-- 하단 3국 통치 체제 비교 탭 버튼 -->
+            <div class="grid grid-cols-4 gap-2 pt-2 border-t border-slate-200">
+              <button onclick="inspectStateOrg('goguryeo')" class="py-2 px-2 text-xs font-bold rounded-lg bg-red-50 hover:bg-red-100 text-red-800 border border-red-200 text-center">
+                고구려(5부·제가)
+              </button>
+              <button onclick="inspectStateOrg('baekje')" class="py-2 px-2 text-xs font-bold rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 text-center">
+                백제(5부·정사암)
+              </button>
+              <button onclick="inspectStateOrg('silla')" class="py-2 px-2 text-xs font-bold rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-center">
+                신라(6부·화백)
+              </button>
+              <button onclick="inspectStateOrg('gaya')" class="py-2 px-2 text-xs font-bold rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-center">
+                가야(금관·대가야)
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 2. 개념 정리 학습지 (빈칸 채우기 ①~⑥) -->
+    <!-- ========================================== -->
+    <section id="section-worksheet" class="hidden space-y-6">
+
+      <!-- 학습지 헤더 -->
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <span class="text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">나의 정리 활동지</span>
+          <h2 class="text-lg font-extrabold text-slate-800 mt-1">02 중앙 집권적 고대 국가의 발전 - 핵심 빈칸 정리</h2>
+          <p class="text-xs text-slate-500">PDF 학습지 1~3페이지의 빈칸 ① ~ ⑥을 교과서 핵심에 맞춰 작성하세요.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="autoFillBlanks(true)" class="text-xs font-medium text-slate-500 hover:text-indigo-600 border border-slate-200 px-3 py-1.5 rounded-lg bg-slate-50">
+            <i class="fa-solid fa-wand-magic"></i> 정답 채우기 (연습용)
+          </button>
+          <button onclick="resetBlanks()" class="text-xs font-medium text-slate-500 hover:text-rose-600 border border-slate-200 px-3 py-1.5 rounded-lg bg-slate-50">
+            <i class="fa-solid fa-rotate-left"></i> 초기화
+          </button>
+        </div>
+      </div>
+
+      <!-- 1) 삼국과 가야의 건국 및 초기 연맹 체제 -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="bg-slate-800 text-white px-5 py-3">
+          <h3 class="text-sm font-bold flex items-center gap-2">
+            <i class="fa-solid fa-landmark-dome text-amber-400"></i>
+            1. 삼국과 가야가 건국되다 ~ 2. 삼국 초기 각 부의 연맹체
+          </h3>
+        </div>
+        <div class="p-5 space-y-4 text-xs sm:text-sm">
+          <div class="grid sm:grid-cols-2 gap-3">
+            <div class="p-3 bg-red-50/60 rounded-xl border border-red-200">
+              <strong class="text-red-900 block mb-1">고구려 성립</strong>
+              <p class="text-slate-700">부여에서 내려온 <strong>주몽</strong>이 졸본 지역에서 건국 (5부 연맹체로 출발)</p>
+            </div>
+            <div class="p-3 bg-blue-50/60 rounded-xl border border-blue-200">
+              <strong class="text-blue-900 block mb-1">백제 성립</strong>
+              <p class="text-slate-700"><strong>온조</strong> 등 고구려계 유이민 + 한강 토착 세력이 연합하여 건국 (마한 소국 출발)</p>
+            </div>
+            <div class="p-3 bg-amber-50/60 rounded-xl border border-amber-200">
+              <strong class="text-amber-900 block mb-1">신라 성립</strong>
+              <p class="text-slate-700">진한의 소국인 <strong>사로국</strong>에서 출발 (박·석·김 3성이 교대로 왕위 계승, 6부 연맹체)</p>
+            </div>
+            <div class="p-3 bg-emerald-50/60 rounded-xl border border-emerald-200">
+              <strong class="text-emerald-900 block mb-1">가야 성립</strong>
+              <p class="text-slate-700"><strong>수로왕</strong>을 중심으로 6가야 연맹체 형성 (김해 지방의 <em>금관가야</em> 주도)</p>
+            </div>
+          </div>
+
+          <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 leading-relaxed text-slate-700">
+            <strong>💡 연맹 국가의 특징:</strong> 각 부의 지배자가 자기 영역을 독자적으로 통치하여 왕권이 미약하였음. 국왕은 대외 외교와 군사 활동을 주도하고, 중요 정책은 귀족 회의(고구려 <strong>제가 회의</strong>, 백제 <strong>정사암 회의</strong>, 신라 <strong>화백 회의</strong>)를 통해 결정함.
+          </div>
+        </div>
+      </div>
+
+      <!-- 2) 중앙 집권적 지배 체제 정비 (빈칸 ①, ②, ③) -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="bg-slate-800 text-white px-5 py-3">
+          <h3 class="text-sm font-bold flex items-center gap-2">
+            <i class="fa-solid fa-gavel text-amber-400"></i>
+            3. 중앙 집권적 지배 체제를 갖추다 (왕권 강화와 통치 기틀)
+          </h3>
+        </div>
+
+        <div class="p-5 space-y-4 text-xs sm:text-sm">
+          <div class="border border-slate-200 rounded-xl overflow-hidden">
+            <table class="w-full text-left border-collapse">
+              <tbody class="divide-y divide-slate-200">
+                <tr>
+                  <td class="p-3 bg-slate-100 font-bold w-28 text-center border-r border-slate-200">고구려 발전</td>
+                  <td class="p-3 text-slate-800 leading-relaxed">
+                    <strong>태조왕</strong>(1세기 말~2세기 초): 옥저 복속, 한 군현 공격, 계루부 고씨의 왕위 계승권 확립
+                  </td>
+                </tr>
+                <tr>
+                  <td class="p-3 bg-slate-100 font-bold text-center border-r border-slate-200">백제 발전</td>
+                  <td class="p-3 text-slate-800 leading-relaxed">
+                    <strong>고이왕</strong>(3세기): 한강 유역을 장악하고 중앙 관제 정비(6좌평 제도 마련, 관등제 정비)
+                  </td>
+                </tr>
+                <tr>
+                  <td class="p-3 bg-slate-100 font-bold text-center border-r border-slate-200">신라 발전</td>
+                  <td class="p-3 text-slate-800 leading-relaxed">
+                    (① <input type="text" id="blank-1" data-answer="내물마립간" placeholder="빈칸 ①" class="worksheet-input w-28 px-2 py-0.5 text-xs font-bold border border-amber-500 rounded bg-white text-center focus:ring-2 focus:ring-amber-500 outline-none">) (내물왕, 4세기 후반): 김씨의 왕위 세습권 확립, 거서간·차차웅·이사금에 이어 '대군장'을 뜻하는 <strong>'마립간'</strong> 왕호 최초 사용
+                  </td>
+                </tr>
+                <tr>
+                  <td class="p-3 bg-slate-100 font-bold text-center border-r border-slate-200">가야 연맹</td>
+                  <td class="p-3 text-slate-800 leading-relaxed">
+                    전기 가야 연맹(김해 <strong>금관가야</strong> 주도 ➔ 광개토 대왕의 공격으로 쇠퇴) ➔ 후기 가야 연맹(고령 <strong>대가야</strong> 주도)
+                  </td>
+                </tr>
+                <tr>
+                  <td class="p-3 bg-slate-100 font-bold text-center border-r border-slate-200">통치 제도</td>
+                  <td class="p-3 text-slate-800 leading-relaxed">
+                    • (② <input type="text" id="blank-2" data-answer="율령" placeholder="빈칸 ②" class="worksheet-input w-20 px-2 py-0.5 text-xs font-bold border border-indigo-400 rounded bg-white text-center focus:ring-2 focus:ring-indigo-500 outline-none">) 반포: 형벌과 행정에 관한 성문법적 통치 기반 확립<br>
+                    • <strong>불교 공인:</strong> 국왕 중심의 통치 이념 확립, 사회 통합 기여
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 각국의 율령 반포와 불교 공인 시기 비교 표 -->
+          <div>
+            <h4 class="font-bold text-slate-700 mb-2 flex items-center gap-1.5">
+              <i class="fa-solid fa-table text-indigo-600"></i> &lt;각국이 율령 반포와 불교를 공인한 시기&gt;
+            </h4>
+            <table class="w-full text-center border border-slate-200 text-xs">
+              <thead class="bg-slate-100 text-slate-700">
+                <tr>
+                  <th class="p-2 border border-slate-200">구분</th>
+                  <th class="p-2 border border-slate-200">율령 반포</th>
+                  <th class="p-2 border border-slate-200">불교 공인</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="p-2 border border-slate-200 font-bold bg-red-50 text-red-900">고구려</td>
+                  <td class="p-2 border border-slate-200 font-bold text-indigo-700" colspan="2">
+                    (③ <input type="text" id="blank-3" data-answer="소수림" placeholder="빈칸 ③" class="worksheet-input w-20 px-2 py-0.5 text-xs font-bold border border-red-400 rounded bg-white text-center focus:ring-2 focus:ring-red-500 outline-none">)왕 (4세기 후반: 불교 수용, 태학 설립, 율령 반포)
+                  </td>
+                </tr>
+                <tr>
+                  <td class="p-2 border border-slate-200 font-bold bg-blue-50 text-blue-900">백제</td>
+                  <td class="p-2 border border-slate-200">고이왕 때 추정 (기록 없음)</td>
+                  <td class="p-2 border border-slate-200">침류왕 (4세기 후반, 동진에서 수용)</td>
+                </tr>
+                <tr>
+                  <td class="p-2 border border-slate-200 font-bold bg-amber-50 text-amber-900">신라</td>
+                  <td class="p-2 border border-slate-200" colspan="2">법흥왕 (6세기: 율령 반포, 이차돈 순교로 불교 공인, 연호 사용)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3) 삼국 항쟁과 고구려·신라의 전성기 (빈칸 ④, ⑤, ⑥) -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="bg-slate-800 text-white px-5 py-3">
+          <h3 class="text-sm font-bold flex items-center gap-2">
+            <i class="fa-solid fa-feather-pointed text-amber-400"></i>
+            4. 삼국 항쟁의 전개와 신라의 삼국 통일
+          </h3>
+        </div>
+
+        <div class="p-5 space-y-4 text-xs sm:text-sm">
+          <div class="space-y-3">
+            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+              <strong class="text-indigo-900 block mb-1">고구려 5세기 전성기</strong>
+              <p class="text-slate-700 leading-relaxed">
+                • <strong>광개토 대왕:</strong> 백제 압박, 신라 내물마립간의 구원 요청으로 왜군 격퇴(가야 타격), 요동·만주 일대 장악<br>
+                • (④ <input type="text" id="blank-4" data-answer="장수" placeholder="빈칸 ④" class="worksheet-input w-20 px-2 py-0.5 text-xs font-bold border border-red-500 rounded bg-white text-center focus:ring-2 focus:ring-red-500 outline-none">)왕 (5세기): 중국 남·북조와 동시 교류, <strong>남진 정책</strong> 추진(평양 천도, 한강 유역 장악, 충주 진출)<br>
+                • 독자적 천하관 반영: <em>광개토 대왕릉비</em>(영락 연호, 천손의식), <em>충주 고구려비</em>(신라왕을 '동이 매금'이라 칭함)
+              </p>
+            </div>
+
+            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+              <strong class="text-amber-900 block mb-1">신라 6세기 전성기</strong>
+              <p class="text-slate-700 leading-relaxed">
+                • <strong>지증왕:</strong> 우경과 수리 사업 장려, 국호 '신라' 확정, '왕' 칭호 사용, 이사부를 시켜 우산국(울릉도) 복속<br>
+                • <strong>법흥왕:</strong> 율령 반포, 불교 공인, '건원' 연호 사용, 금관가야 병합<br>
+                • (⑤ <input type="text" id="blank-5" data-answer="진흥" placeholder="빈칸 ⑤" class="worksheet-input w-20 px-2 py-0.5 text-xs font-bold border border-amber-600 rounded bg-white text-center focus:ring-2 focus:ring-amber-500 outline-none">)왕: 화랑도 국가 조직 개편, <strong>한강 유역 독점 장악</strong>(중국과 직접 교류 통로 확보), 대가야 정복, 함경도 진출(단양 신라 적성비와 4개 순수비 건립)
+              </p>
+            </div>
+
+            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+              <strong class="text-slate-900 block mb-1">동아시아 정세 변화와 신라의 삼국 통일</strong>
+              <p class="text-slate-700 leading-relaxed">
+                • 수의 침략 격퇴: 고구려의 (⑥ <input type="text" id="blank-6" data-answer="을지문덕" placeholder="빈칸 ⑥" class="worksheet-input w-24 px-2 py-0.5 text-xs font-bold border border-slate-400 rounded bg-white text-center focus:ring-2 focus:ring-indigo-500 outline-none">) 장군이 살수에서 수나라 대군을 격퇴함(살수대첩, 612)<br>
+                • 당의 침략 격퇴: 천리장성 축조, 안시성 싸움에서 격퇴(645)<br>
+                • <strong>신라의 삼국 통일 과정:</strong> 김춘추의 나·당 동맹 결성 ➔ 백제 멸망(660) ➔ 고구려 멸망(668) ➔ 나·당 전쟁(매소성·기벌포 전투에서 당군 격파) ➔ <strong>신라 삼국 통일 완수 (676)</strong><br>
+                • <em>통일의 의의와 한계:</em> 외세(당)의 개입과 대동강 이남 영토 한계가 있으나, 당을 무력으로 몰아낸 자주적 성격과 민족 문화 발전의 기틀을 마련함
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 3. 실전 확인 문제 & 테스트 -->
+    <!-- ========================================== -->
+    <section id="section-quiz" class="hidden space-y-6">
+
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <span class="text-xs font-bold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full">학습 평가</span>
+          <h2 class="text-lg font-extrabold text-slate-800 mt-1">확인 문제 및 실전 수능·내신 퀴즈</h2>
+          <p class="text-xs text-slate-500">학습지 원본 확인 문제 3문항과 실력 점검 응용 3문항(총 6문항 / 100점 만점)을 풀어보세요.</p>
+        </div>
+        <span class="text-xs text-slate-500 font-semibold">총 6문항 / 100점 만점</span>
+      </div>
+
+      <!-- 문제 1 (PDF 확인문제 01) -->
+      <div class="quiz-card bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-3" data-qid="1">
+        <div class="flex items-start justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white font-extrabold text-xs flex items-center justify-center">1</span>
+            <span class="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded">PDF 확인문제 01</span>
+          </div>
+          <span class="text-xs font-semibold text-slate-400">15점</span>
+        </div>
+        <p class="text-sm font-bold text-slate-800 leading-relaxed">
+          다음 설명에 들어갈 고구려의 왕 이름을 입력하세요.
+        </p>
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-sm leading-loose">
+          고구려의 ( <input type="text" id="q1-input" placeholder="왕 이름" class="w-28 px-2 py-1 text-center font-bold border border-slate-300 rounded text-indigo-700 focus:ring-2 focus:ring-indigo-500 outline-none"> )왕은 4세기 후반 불교를 수용하고, 태학을 설립하였으며, 율령을 반포하여 국가 체제를 정비하였다.
+        </div>
+      </div>
+
+      <!-- 문제 2 (PDF 확인문제 02) -->
+      <div class="quiz-card bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-3" data-qid="2">
+        <div class="flex items-start justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white font-extrabold text-xs flex items-center justify-center">2</span>
+            <span class="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded">PDF 확인문제 02</span>
+          </div>
+          <span class="text-xs font-semibold text-slate-400">15점</span>
+        </div>
+        <p class="text-sm font-bold text-slate-800 leading-relaxed">
+          다음 설명에 해당하는 백제의 왕을 고르세요.
+        </p>
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-sm leading-relaxed">
+          3세기 한강 유역을 장악하였으며, 6좌평 제도와 16관등제를 마련하여 관등제를 정비하고 율령을 반포한 것으로 추정되는 백제의 왕은?
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+          <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+            <input type="radio" name="q2-choice" value="온조왕" class="text-indigo-600 focus:ring-indigo-500">
+            <span class="ml-2 text-xs sm:text-sm text-slate-700">① 온조왕</span>
+          </label>
+          <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+            <input type="radio" name="q2-choice" value="고이왕" class="text-indigo-600 focus:ring-indigo-500">
+            <span class="ml-2 text-xs sm:text-sm font-bold text-indigo-700">② 고이왕</span>
+          </label>
+          <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+            <input type="radio" name="q2-choice" value="근초고왕" class="text-indigo-600 focus:ring-indigo-500">
+            <span class="ml-2 text-xs sm:text-sm text-slate-700">③ 근초고왕</span>
+          </label>
+          <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+            <input type="radio" name="q2-choice" value="침류왕" class="text-indigo-600 focus:ring-indigo-500">
+            <span class="ml-2 text-xs sm:text-sm text-slate-700">④ 침류왕</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 문제 3 (PDF 확인문제 03) -->
+      <div class="quiz-card bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-3" data-qid="3">
+        <div class="flex items-start justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white font-extrabold text-xs flex items-center justify-center">3</span>
+            <span class="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded">PDF 확인문제 03</span>
+          </div>
+          <span class="text-xs font-semibold text-slate-400">15점</span>
+        </div>
+        <p class="text-sm font-bold text-slate-800 leading-relaxed">
+          다음 설명의 빈칸에 들어갈 신라의 전성기 왕은 누구입니까?
+        </p>
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-sm leading-relaxed">
+          신라의 ( <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u> )왕은 화랑도를 개편하고 한강 유역을 차지하여 중국과의 직접 교류 통로를 확보하였으며, 대가야를 정복하고 순수비를 세웠다.
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+          <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+            <input type="radio" name="q3-choice" value="내물마립간" class="text-indigo-600 focus:ring-indigo-500">
+            <span class="ml-2 text-xs sm:text-sm text-slate-700">① 내물마립간</span>
+          </label>
+          <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+            <input type="radio" name="q3-choice" value="지증왕" class="text-indigo-600 focus:ring-indigo-500">
+            <span class="ml-2 text-xs sm:text-sm text-slate-700">② 지증왕</span>
+          </label>
+          <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+            <input type="radio" name="q3-choice" value="법흥왕" class="text-indigo-600 focus:ring-indigo-500">
+            <span class="ml-2 text-xs sm:text-sm text-slate-700">③ 법흥왕</span>
+          </label>
+          <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+            <input type="radio" name="q3-choice" value="진흥왕" class="text-indigo-600 focus:ring-indigo-500">
+            <span class="ml-2 text-xs sm:text-sm font-bold text-amber-700">④ 진흥왕</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 문제 4 (사료 심화: 고구려의 독자적 천하관) -->
+      <div class="quiz-card bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-3" data-qid="4">
+        <div class="flex items-start justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white font-extrabold text-xs flex items-center justify-center">4</span>
+            <span class="text-xs font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded">수능·사료 분석</span>
+          </div>
+          <span class="text-xs font-semibold text-slate-400">20점</span>
+        </div>
+        <p class="text-sm font-bold text-slate-800 leading-relaxed">
+          다음 광개토 대왕릉비와 충주고구려비에 나타난 <strong>고구려인의 인식(천하관)</strong>으로 가장 적절한 것은?
+        </p>
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs sm:text-sm leading-relaxed text-slate-700">
+          • 시조 추모왕은 천제의 아들이었고... 칭호를 영락 대왕이라 하였다... 백잔과 신라는 옛적부터 고구려의 속민이었다.<br>
+          • 충주고구려비: 신라왕을 '동이(동쪽 오랑캐)의 매금'으로 표현하였다.
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+          <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+            <input type="radio" name="q4-choice" value="1" class="text-indigo-600 focus:ring-indigo-500">
+            <span class="ml-2 text-xs sm:text-sm text-slate-700">① 중국 황제에게 조공하고 사대를 최우선으로 삼았다.</span>
+          </label>
+          <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+            <input type="radio" name="q4-choice" value="2" class="text-indigo-600 focus:ring-indigo-500">
+            <span class="ml-2 text-xs sm:text-sm text-slate-700 font-bold text-red-700">② 스스로를 천손이라 여기며 천하의 중심이라는 독자적 천하관을 과시하였다.</span>
+          </label>
+          <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+            <input type="radio" name="q4-choice" value="3" class="text-indigo-600 focus:ring-indigo-500">
+            <span class="ml-2 text-xs sm:text-sm text-slate-700">③ 신라와 백제를 자신보다 상위의 군주국으로 우대하였다.</span>
+          </label>
+          <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+            <input type="radio" name="q4-choice" value="4" class="text-indigo-600 focus:ring-indigo-500">
+            <span class="ml-2 text-xs sm:text-sm text-slate-700">④ 왜와의 동맹을 맺고 중국 남조와의 교류를 차단하였다.</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 문제 5 (삼국 귀족 회의 매칭) -->
+      <div class="quiz-card bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-3" data-qid="5">
+        <div class="flex items-start justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white font-extrabold text-xs flex items-center justify-center">5</span>
+            <span class="text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">통치 제도</span>
+          </div>
+          <span class="text-xs font-semibold text-slate-400">15점</span>
+        </div>
+        <p class="text-sm font-bold text-slate-800 leading-relaxed">
+          삼국의 국가와 귀족 회의 명칭이 올바르게 짝지어진 것은?
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+          <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+            <input type="radio" name="q5-choice" value="1" class="text-indigo-600 focus:ring-indigo-500">
+            <span class="ml-2 text-xs sm:text-sm text-slate-700">① 고구려 - 화백 회의</span>
+          </label>
+          <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+            <input type="radio" name="q5-choice" value="2" class="text-indigo-600 focus:ring-indigo-500">
+            <span class="ml-2 text-xs sm:text-sm text-slate-700">② 백제 - 제가 회의</span>
+          </label>
+          <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+            <input type="radio" name="q5-choice" value="3" class="text-indigo-600 focus:ring-indigo-500">
+            <span class="ml-2 text-xs sm:text-sm font-bold text-indigo-700">③ 신라 - 화백 회의 (만장일치제)</span>
+          </label>
+          <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+            <input type="radio" name="q5-choice" value="4" class="text-indigo-600 focus:ring-indigo-500">
+            <span class="ml-2 text-xs sm:text-sm text-slate-700">④ 백제 - 사출도 회의</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 문제 6 (신라 삼국 통일 전쟁 순서) -->
+      <div class="quiz-card bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-3" data-qid="6">
+        <div class="flex items-start justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white font-extrabold text-xs flex items-center justify-center">6</span>
+            <span class="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded">통일 전쟁 과정</span>
+          </div>
+          <span class="text-xs font-semibold text-slate-400">20점</span>
+        </div>
+        <p class="text-sm font-bold text-slate-800 leading-relaxed">
+          다음 신라의 삼국 통일 과정을 일어난 순서대로 바르게 나열한 것은?
+        </p>
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs sm:text-sm leading-relaxed text-slate-700">
+          (가) 살수에서 을지문덕이 수나라 군대를 격퇴함 (612)<br>
+          (나) 나·당 연합군에 의해 백제(660)와 고구려(668)가 멸망함<br>
+          (다) 매소성과 기벌포 전투에서 당의 군대를 격파함 (676)
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+          <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+            <input type="radio" name="q6-choice" value="1" class="text-indigo-600 focus:ring-indigo-500">
+            <span class="ml-2 text-xs sm:text-sm font-bold text-indigo-700">① (가) ➔ (나) ➔ (다)</span>
+          </label>
+          <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+            <input type="radio" name="q6-choice" value="2" class="text-indigo-600 focus:ring-indigo-500">
+            <span class="ml-2 text-xs sm:text-sm text-slate-700">② (나) ➔ (가) ➔ (다)</span>
+          </label>
+          <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+            <input type="radio" name="q6-choice" value="3" class="text-indigo-600 focus:ring-indigo-500">
+            <span class="ml-2 text-xs sm:text-sm text-slate-700">③ (가) ➔ (다) ➔ (나)</span>
+          </label>
+          <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+            <input type="radio" name="q6-choice" value="4" class="text-indigo-600 focus:ring-indigo-500">
+            <span class="ml-2 text-xs sm:text-sm text-slate-700">④ (다) ➔ (나) ➔ (가)</span>
+          </label>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 하단 채점 및 제출 바 -->
+    <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold text-lg">
+          <i class="fa-solid fa-paper-plane"></i>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-slate-800">학습지 완성 및 답안 제출</h3>
+          <p class="text-xs text-slate-500">학습지의 빈칸과 확인 문제를 모두 푼 후 제출하고 자동 채점을 받으세요.</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 w-full sm:w-auto">
+        <button onclick="checkWorksheetProgress()" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-bold transition">
+          <i class="fa-solid fa-magnifying-glass mr-1"></i> 미작성 항목 확인
+        </button>
+        <button onclick="submitWorksheet()" class="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-sm font-extrabold shadow-lg shadow-indigo-200 transition-all transform active:scale-95 flex items-center justify-center gap-2">
+          <span>제출 및 자동 채점하기</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- 결과 및 피드백 모달 창 -->
+  <!-- ========================================== -->
+  <div id="resultModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col animate-in fade-in zoom-in duration-200">
+      
+      <!-- 모달 헤더 -->
+      <div class="bg-slate-900 text-white p-6 relative">
+        <button onclick="closeResultModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white transition">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+        <span class="text-xs font-bold text-indigo-400 bg-indigo-900/50 px-2.5 py-1 rounded-full border border-indigo-500/30">
+          학습 결과 리포트
+        </span>
+        <h2 class="text-2xl font-black mt-2 flex items-center gap-2">
+          <span>🎉 학습지 채점 완료!</span>
+        </h2>
+        <p class="text-xs text-slate-300 mt-1" id="modalStudentDesc">홍길동 학생의 실시간 채점 분석표입니다.</p>
+      </div>
+
+      <!-- 모달 본문 스크롤 영역 -->
+      <div class="p-6 overflow-y-auto space-y-6 custom-scrollbar text-slate-800 text-sm">
+        
+        <!-- 점수 요약 카드 -->
+        <div class="grid grid-cols-3 gap-3 text-center">
+          <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl">
+            <span class="text-xs font-bold text-indigo-600 block">종합 점수</span>
+            <span class="text-3xl font-black text-indigo-700 mt-1 block" id="modalScoreText">100점</span>
+            <span class="text-[11px] text-indigo-500" id="modalGradeRank">최우수 (A등급)</span>
+          </div>
+          <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl">
+            <span class="text-xs font-bold text-emerald-600 block">개념 빈칸 정답</span>
+            <span class="text-3xl font-black text-emerald-700 mt-1 block" id="modalBlankScore">6/6</span>
+            <span class="text-[11px] text-emerald-500">100% 달성</span>
+          </div>
+          <div class="bg-amber-50 border border-amber-100 p-4 rounded-2xl">
+            <span class="text-xs font-bold text-amber-600 block">확인 문제 정답</span>
+            <span class="text-3xl font-black text-amber-700 mt-1 block" id="modalQuizScore">6/6</span>
+            <span class="text-[11px] text-amber-600">완벽 해결</span>
+          </div>
+        </div>
+
+        <!-- 피드백 코멘트 -->
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+          <h4 class="font-extrabold text-slate-800 text-xs mb-1 flex items-center gap-1.5">
+            <i class="fa-solid fa-graduation-cap text-indigo-600"></i> 선생님의 학습 총평:
+          </h4>
+          <p class="text-xs text-slate-600 leading-relaxed" id="modalFeedbackMessage">
+            삼국의 성립과 한강 유역 쟁탈전(4세기 백제, 5세기 고구려, 6세기 신라), 그리고 율령 반포와 불교 공인의 의의를 완벽히 숙지하고 있습니다!
+          </p>
+        </div>
+
+        <!-- 문항별 상세 채점 결과 -->
+        <div class="space-y-3">
+          <h4 class="font-extrabold text-slate-800 text-sm flex items-center gap-1.5">
+            <i class="fa-solid fa-list-check text-indigo-600"></i> 문항별 상세 해설 및 채점 내역
+          </h4>
+          <div id="detailedReviewList" class="space-y-2 text-xs">
+            <!-- 자바스크립트로 동적 렌더링 -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 모달 푸터 버튼 -->
+      <div class="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3">
+        <button onclick="window.print()" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+          <i class="fa-solid fa-print"></i> 결과표 인쇄 / PDF 저장
+        </button>
+        <button onclick="closeResultModal()" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition shadow">
+          확인 및 닫기
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 푸터 -->
+  <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 text-center text-xs text-slate-400">
+      고등학교 한국사 디지털 인터랙티브 학습지 &copy; 2026. 바이브코딩 교육 실습용 웹앱.
+    </div>
+  </footer>
+
+  <!-- ========================================== -->
+  <!-- 자바스크립트 로직 (시뮬레이터 & 자동채점) -->
+  <!-- ========================================== -->
+  <script>
+    const appState = {
+      student: { grade: '', num: '', name: '' },
+      currentTab: 'simulation',
+      currentCentury: 4,
+      centuryData: {
+        4: {
+          title: "백제의 전성기 (근초고왕)",
+          badge: "4세기 후반",
+          tagClass: "bg-blue-100 text-blue-800",
+          geo: "한강 유역 장악 및 해외 진출",
+          king: "근초고왕 (4세기 후반)",
+          conquest: "마한의 남은 소국 복속, 고구려 평양성 공격(고국원왕 전사, 황해도 진출)",
+          trade: "중국(동진) - 백제 - 가야 - 왜를 잇는 황해 해상 무역로 주도",
+          relic: "칠지도 (왜왕에게 하사한 칼)",
+          docTitle: "교과서 사료: 백제의 해상 교류와 칠지도",
+          docBody: "백제 근초고왕은 한강 유역의 비옥한 경제력과 해상 교통로를 바탕으로 중국 동진과 수교하고 왜에 칠지도를 하사하며 국제 무역망을 주도했습니다.",
+          mapHeader: "4세기 삼국과 가야 형세도 (백제의 한강 주도권 장악)",
+          // SVG shapes: 백제 확장, 고구려 위축
+          pathGoguryeo: "M 50 40 L 250 40 L 230 185 L 80 180 Z",
+          pathBaekje: "M 70 180 L 180 180 L 160 360 L 75 340 Z", // 한강 차지 & 황해도
+          pathSilla: "M 180 220 L 235 220 L 225 360 L 170 350 Z",
+          pathGaya: { cx: 155, cy: 385, rx: 22, ry: 16 }
+        },
+        5: {
+          title: "고구려의 전성기 (광개토대왕·장수왕)",
+          badge: "5세기",
+          tagClass: "bg-red-100 text-red-800",
+          geo: "한강 유역 장악 및 남진 정책",
+          king: "광개토 대왕(4세기 말~5세기 초), 장수왕(5세기)",
+          conquest: "광개토대왕: 요동·만주 장악, 신라 구원(왜 격퇴, 가야 타격) / 장수왕: 평양 천도, 한강 유역 장악, 충주 진출",
+          trade: "중국 남·북조와 동시 다면 외교, 북방 유목 민족 교류",
+          relic: "광개토 대왕릉비(영락 연호), 충주 고구려비('동이 매금')",
+          docTitle: "교과서 사료: 광개토 대왕릉비와 충주 고구려비의 천하관",
+          docBody: "광개토 대왕릉비에는 스스로를 천손이라 여긴 고구려의 자부심이, 충주고구려비에는 신라왕을 '동이의 매금'이라 칭하며 고구려를 천하의 중심에 놓은 천하관이 기록되어 있습니다.",
+          mapHeader: "5세기 삼국 형세도 (고구려의 광대한 영토 확장과 남진)",
+          // 고구려가 한강 이남 충주까지 확장
+          pathGoguryeo: "M 40 30 L 270 30 L 240 260 L 90 260 Z",
+          pathBaekje: "M 75 260 L 150 260 L 140 370 L 70 350 Z", // 웅진 천도 위축
+          pathSilla: "M 155 260 L 230 260 L 220 370 L 155 370 Z",
+          pathGaya: { cx: 145, cy: 385, rx: 18, ry: 14 }
+        },
+        6: {
+          title: "신라의 전성기 (진흥왕)",
+          badge: "6세기",
+          tagClass: "bg-amber-100 text-amber-800",
+          geo: "한강 유역 독점 장악 & 중국 직교류",
+          king: "진흥왕 (6세기 중후반)",
+          conquest: "화랑도 개편, 백제와 연합 후 배신하여 한강 유역 독점, 대가야 정복, 함경도 진출",
+          trade: "당항성을 통해 황해로 중국과 직접 교류(선진 문물 수용 통로 확보)",
+          relic: "단양 신라 적성비, 4개 순수비(북한산비, 창녕비, 황초령비, 마운령비)",
+          docTitle: "교과서 사료: 진흥왕 순수비와 한강 유역 확보의 의의",
+          docBody: "신라는 한강 유역을 확보함으로써 인적·물적 자원을 크게 늘렸을 뿐만 아니라, 고구려나 백제를 거치지 않고 황해를 통해 중국과 직접 교류할 수 있는 발판을 마련했습니다.",
+          mapHeader: "6세기 삼국 형세도 (신라의 한강 독점 및 영토 대확장)",
+          // 신라가 한강 및 함경도까지 길게 확장
+          pathGoguryeo: "M 50 40 L 230 40 L 200 170 L 70 170 Z",
+          pathBaekje: "M 70 240 L 140 240 L 135 370 L 65 350 Z",
+          pathSilla: "M 70 170 L 240 170 L 225 380 L 135 380 Z", // 한강 및 동해안 진출
+          pathGaya: { cx: 140, cy: 395, rx: 10, ry: 8 } // 대가야 멸망 직전
+        },
+        7: {
+          title: "동아시아 전쟁과 신라의 삼국 통일",
+          badge: "7세기",
+          tagClass: "bg-purple-100 text-purple-800",
+          geo: "대동강 ~ 원산만 이남 통일 완수",
+          king: "문무왕 (676년 삼국 통일 완성)",
+          conquest: "을지문덕 살수대첩(612), 안시성 싸움(645) ➔ 나당 동맹 ➔ 백제(660)·고구려(668) 멸망 ➔ 매소성·기벌포 전투 승리",
+          trade: "나·당 전쟁 승리로 당군 축출 후 통일 신라 무역 체제 구축",
+          relic: "김춘추의 나당 동맹 교섭 외교 기록 (삼국사기)",
+          docTitle: "교과서 사료: 김춘추의 나·당 동맹 외교 교섭",
+          docBody: "김춘추는 고구려 연개소문에게 군사 지원을 요청했으나 거절당한 뒤, 당 태종을 직접 찾아가 나당 동맹을 성사시켰고, 훗날 당의 한반도 지배 야욕을 매소성·기벌포에서 물리치며 자주적 통일을 완수했습니다.",
+          mapHeader: "7세기 삼국 통일 완수 (대동강 이남 통일 신라)",
+          pathGoguryeo: "M 60 40 L 250 40 L 230 160 L 80 160 Z",
+          pathBaekje: "M 70 240 L 140 240 L 135 360 L 65 350 Z",
+          pathSilla: "M 80 160 L 230 160 L 225 400 L 70 400 Z", // 남한 전체
+          pathGaya: { cx: 0, cy: 0, rx: 0, ry: 0 }
+        }
+      }
+    };
+
+    // 탭 전환
+    function switchTab(tabId) {
+      appState.currentTab = tabId;
+      ['simulation', 'worksheet', 'quiz'].forEach(t => {
+        const sec = document.getElementById(`section-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (t === tabId) {
+          sec.classList.remove('hidden');
+          btn.classList.add('border-indigo-600', 'text-indigo-700', 'font-bold');
+          btn.classList.remove('border-transparent', 'text-slate-500');
+        } else {
+          sec.classList.add('hidden');
+          btn.classList.remove('border-indigo-600', 'text-indigo-700', 'font-bold');
+          btn.classList.add('border-transparent', 'text-slate-500');
+        }
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 세기별 타임라인 설정
+    function setCentury(c) {
+      appState.currentCentury = c;
+      const data = appState.centuryData[c];
+      if (!data) return;
+
+      // 타임라인 버튼 활성화 스타일
+      [4, 5, 6, 7].forEach(num => {
+        const btn = document.getElementById(`c-btn-${num}`);
+        if (num === c) {
+          btn.className = "century-btn active px-3 py-1.5 text-xs rounded-lg transition font-bold";
+        } else {
+          btn.className = "century-btn px-3 py-1.5 text-xs rounded-lg transition font-medium text-slate-200 hover:text-white";
+        }
+      });
+
+      // 우측 정보 패널 업데이트
+      document.getElementById('century-title').textContent = data.title;
+      document.getElementById('century-tag').textContent = `${c}세기 주도`;
+      document.getElementById('century-tag').className = `px-2.5 py-1 text-xs font-bold rounded-lg ${data.tagClass}`;
+      document.getElementById('century-geo').textContent = data.geo;
+      document.getElementById('sim-king').textContent = data.king;
+      document.getElementById('sim-conquest').textContent = data.conquest;
+      document.getElementById('sim-trade').textContent = data.trade;
+      document.getElementById('sim-relic').textContent = data.relic;
+      document.getElementById('doc-source-title').textContent = data.docTitle;
+      document.getElementById('doc-source-body').textContent = data.docBody;
+      document.getElementById('map-header-title').textContent = data.mapHeader;
+      document.getElementById('map-century-badge').textContent = data.badge;
+
+      // SVG 지도 경로 변형 (형세 변화)
+      document.getElementById('path-goguryeo').setAttribute('d', data.pathGoguryeo);
+      document.getElementById('path-baekje').setAttribute('d', data.pathBaekje);
+      document.getElementById('path-silla').setAttribute('d', data.pathSilla);
+
+      const gayaElem = document.getElementById('path-gaya');
+      gayaElem.setAttribute('cx', data.pathGaya.cx);
+      gayaElem.setAttribute('cy', data.pathGaya.cy);
+      gayaElem.setAttribute('rx', data.pathGaya.rx);
+      gayaElem.setAttribute('ry', data.pathGaya.ry);
+
+      if (c === 7) {
+        document.getElementById('txt-gaya').style.display = 'none';
+        document.getElementById('txt-baekje').textContent = '백제(멸망)';
+        document.getElementById('txt-goguryeo').textContent = '고구려(멸망)';
+        document.getElementById('txt-silla').textContent = '통일 신라';
+      } else {
+        document.getElementById('txt-gaya').style.display = 'block';
+        document.getElementById('txt-baekje').textContent = '백제';
+        document.getElementById('txt-goguryeo').textContent = '고구려';
+        document.getElementById('txt-silla').textContent = '신라';
+      }
+    }
+
+    // 3국 통치 체제 버튼 인터랙션
+    function inspectStateOrg(state) {
+      const orgs = {
+        goguryeo: {
+          title: "고구려의 통치 체제 (5부 연맹체 & 제가 회의)",
+          badge: "고구려",
+          tagClass: "bg-red-100 text-red-800",
+          geo: "국내성·평양성",
+          king: "태조왕(계루부 고씨 세습), 소수림왕(율령·불교·태학)",
+          conquest: "옥저 복속, 한 군현 공격, 만주 및 한강 유역 장악",
+          trade: "남북조 동시 외교 및 북방 유목 민족과 연대",
+          relic: "제가 회의 (수상격인 대대로 선출)",
+          docTitle: "고구려의 귀족 회의: 제가 회의",
+          docBody: "초기 각 부의 지배 세력(고추가 등)이 왕권과 견제하며 참여하였고, 점차 국왕 중심의 행정 관등 체계로 편입되면서 대대로를 선출하여 국정을 운영했습니다."
+        },
+        baekje: {
+          title: "백제의 통치 체제 (5부 5방 & 정사암 회의)",
+          badge: "백제",
+          tagClass: "bg-blue-100 text-blue-800",
+          geo: "한성(위례성) ➔ 웅진 ➔ 사비",
+          king: "고이왕(6좌평·16관등), 근초고왕(마한 병합), 무령왕(22담로)",
+          conquest: "한강 유역 장악 후 마한 전역 통합, 평양 공격",
+          trade: "황해 해상 교역로(동진-백제-가야-왜 연결)",
+          relic: "정사암 회의 (상좌평 선출)",
+          docTitle: "백제의 귀족 회의: 정사암 회의",
+          docBody: "백제에서는 재상을 뽑을 때 후보자의 이름을 적어 상자에 넣고 정사암 바위에 두었다가 도장이 찍힌 사람을 상좌평(수상)으로 삼았습니다."
+        },
+        silla: {
+          title: "신라의 통치 체제 (6부 & 화백 회의·골품제)",
+          badge: "신라",
+          tagClass: "bg-amber-100 text-amber-800",
+          geo: "금성(경주)",
+          king: "내물마립간(김씨 세습), 지증왕(신라·왕 칭호), 법흥왕(율령·불교)",
+          conquest: "가야 병합(금관·대가야), 한강 유역 장악, 삼국 통일",
+          trade: "당항성을 통한 대중국 직접 교류",
+          relic: "화백 회의 (만장일치제, 상대등 주재)",
+          docTitle: "신라의 귀족 회의: 화백 회의",
+          docBody: "신라 귀족들의 합의체인 화백 회의는 만장일치제로 운영되어 왕권을 견제하고 귀족 간 결속을 도모하였으며, 최고 관직인 상대등이 회의를 이끌었습니다."
+        },
+        gaya: {
+          title: "가야 연맹의 변천 (금관가야 ➔ 대가야)",
+          badge: "가야",
+          tagClass: "bg-emerald-100 text-emerald-800",
+          geo: "낙동강 하류 일대 (김해, 고령)",
+          king: "수로왕(건국), 이진아시왕(대가야)",
+          conquest: "전기: 금관가야 주도 / 후기: 대가야 주도",
+          trade: "낙랑과 왜에 풍부한 철 수출, 벼농사 발달",
+          relic: "풍부한 철제 갑옷과 가야 토기",
+          docTitle: "가야가 중앙 집권 국가로 발전하지 못한 원인",
+          docBody: "가야는 각 소국의 독립성이 강하여 하나의 단일 왕조로 집권화되지 못하였고, 백제와 신라의 압박 및 고구려 광개토 대왕의 타격으로 연맹이 와해되었습니다."
+        }
+      };
+
+      const d = orgs[state];
+      if (!d) return;
+
+      document.getElementById('century-title').textContent = d.title;
+      document.getElementById('century-tag').textContent = d.badge;
+      document.getElementById('century-tag').className = `px-2.5 py-1 text-xs font-bold rounded-lg ${d.tagClass}`;
+      document.getElementById('century-geo').textContent = d.geo;
+      document.getElementById('sim-king').textContent = d.king;
+      document.getElementById('sim-conquest').textContent = d.conquest;
+      document.getElementById('sim-trade').textContent = d.trade;
+      document.getElementById('sim-relic').textContent = d.relic;
+      document.getElementById('doc-source-title').textContent = d.docTitle;
+      document.getElementById('doc-source-body').textContent = d.docBody;
+    }
+
+    function inspectTerritory(state) {
+      inspectStateOrg(state);
+    }
+
+    // 학생 정보 등록
+    function saveStudentInfo() {
+      const g = document.getElementById('studentGrade').value.trim();
+      const num = document.getElementById('studentNum').value.trim();
+      const n = document.getElementById('studentName').value.trim();
+
+      if (!n) {
+        alert('학생 이름을 입력해주세요!');
+        return;
+      }
+
+      appState.student.grade = g || '1-1';
+      appState.student.num = num || '00';
+      appState.student.name = n;
+
+      const btn = document.getElementById('saveInfoBtn');
+      btn.className = "bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 shadow-sm";
+      btn.innerHTML = '<i class="fa-solid fa-check-double"></i> 등록 완료';
+      alert(`[${appState.student.grade} ${appState.student.num}번 ${appState.student.name}] 학생 정보가 저장되었습니다.`);
+    }
+
+    // 빈칸 자동 채우기 (연습용)
+    function autoFillBlanks(notify = false) {
+      const answers = {
+        'blank-1': '내물마립간',
+        'blank-2': '율령',
+        'blank-3': '소수림',
+        'blank-4': '장수',
+        'blank-5': '진흥',
+        'blank-6': '을지문덕'
+      };
+      for (let i = 1; i <= 6; i++) {
+        const elem = document.getElementById(`blank-${i}`);
+        if (elem) elem.value = answers[`blank-${i}`];
+      }
+      if (notify) {
+        alert('교과서 학습지의 핵심 빈칸 답안(①~⑥)이 자동으로 채워졌습니다. 채점 테스트를 진행해보세요!');
+      }
+    }
+
+    // 빈칸 초기화
+    function resetBlanks() {
+      for (let i = 1; i <= 6; i++) {
+        const elem = document.getElementById(`blank-${i}`);
+        if (elem) elem.value = '';
+      }
+    }
+
+    // 미작성 항목 사전 체크
+    function checkWorksheetProgress() {
+      let emptyBlanks = 0;
+      for (let i = 1; i <= 6; i++) {
+        if (!document.getElementById(`blank-${i}`)?.value.trim()) emptyBlanks++;
+      }
+
+      let emptyQuizzes = 0;
+      if (!document.getElementById('q1-input')?.value.trim()) emptyQuizzes++;
+      if (!document.querySelector('input[name="q2-choice"]:checked')) emptyQuizzes++;
+      if (!document.querySelector('input[name="q3-choice"]:checked')) emptyQuizzes++;
+      if (!document.querySelector('input[name="q4-choice"]:checked')) emptyQuizzes++;
+      if (!document.querySelector('input[name="q5-choice"]:checked')) emptyQuizzes++;
+      if (!document.querySelector('input[name="q6-choice"]:checked')) emptyQuizzes++;
+
+      if (emptyBlanks === 0 && emptyQuizzes === 0) {
+        alert('모든 학습지 빈칸과 퀴즈 6문항을 작성했습니다! [제출 및 자동 채점하기] 버튼을 눌러주세요.');
+      } else {
+        alert(`아직 비어있는 항목이 있습니다.\n- 학습지 빈칸 미완료: ${emptyBlanks}개\n- 확인 문제 미완료: ${emptyQuizzes}문항\n모두 확인 후 제출해주세요.`);
+      }
+    }
+
+    // 최종 채점 및 제출
+    function submitWorksheet() {
+      if (!appState.student.name) {
+        const inName = document.getElementById('studentName').value.trim();
+        if (inName) {
+          appState.student.name = inName;
+          appState.student.grade = document.getElementById('studentGrade').value.trim() || '1학년';
+          appState.student.num = document.getElementById('studentNum').value.trim() || '번';
+        } else {
+          alert('상단 바에 [학생 이름]을 먼저 입력해주세요!');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          document.getElementById('studentName').focus();
+          return;
+        }
+      }
+
+      // 1. 학습지 빈칸 채점 (6문항, 40점 만점)
+      const blankAnswers = {
+        1: ['내물마립간', '내물왕', '내물'],
+        2: ['율령', '율령반포'],
+        3: ['소수림', '소수림왕'],
+        4: ['장수', '장수왕'],
+        5: ['진흥', '진흥왕'],
+        6: ['을지문덕']
+      };
+
+      let blankCorrect = 0;
+      for (let i = 1; i <= 6; i++) {
+        const val = document.getElementById(`blank-${i}`)?.value.trim().replace(/\s+/g, '') || '';
+        const list = blankAnswers[i];
+        if (list.some(ans => val.includes(ans) || ans.includes(val) && val.length >= 2)) {
+          blankCorrect++;
+        }
+      }
+
+      // 2. 퀴즈 6문항 채점 (60점 만점)
+      // Q1: 소수림왕 (15점)
+      const q1_val = document.getElementById('q1-input')?.value.trim() || '';
+      const q1_isCorrect = q1_val.includes('소수림');
+
+      // Q2: 고이왕 (15점)
+      const q2_val = document.querySelector('input[name="q2-choice"]:checked')?.value;
+      const q2_isCorrect = q2_val === '고이왕';
+
+      // Q3: 진흥왕 (15점)
+      const q3_val = document.querySelector('input[name="q3-choice"]:checked')?.value;
+      const q3_isCorrect = q3_val === '진흥왕';
+
+      // Q4: 독자적 천하관 (보기 ②, 20점)
+      const q4_val = document.querySelector('input[name="q4-choice"]:checked')?.value;
+      const q4_isCorrect = q4_val === '2';
+
+      // Q5: 신라 - 화백 회의 (보기 ③, 15점)
+      const q5_val = document.querySelector('input[name="q5-choice"]:checked')?.value;
+      const q5_isCorrect = q5_val === '3';
+
+      // Q6: 순서 (가)-(나)-(다) (보기 ①, 20점)
+      const q6_val = document.querySelector('input[name="q6-choice"]:checked')?.value;
+      const q6_isCorrect = q6_val === '1';
+
+      let quizCorrect = 0;
+      if (q1_isCorrect) quizCorrect++;
+      if (q2_isCorrect) quizCorrect++;
+      if (q3_isCorrect) quizCorrect++;
+      if (q4_isCorrect) quizCorrect++;
+      if (q5_isCorrect) quizCorrect++;
+      if (q6_isCorrect) quizCorrect++;
+
+      // 점수 계산 (빈칸: 40점 비례, 문제: 60점 비례)
+      const blankScore = Math.round((blankCorrect / 6) * 40);
+      let quizPoints = 0;
+      if (q1_isCorrect) quizPoints += 10;
+      if (q2_isCorrect) quizPoints += 10;
+      if (q3_isCorrect) quizPoints += 10;
+      if (q4_isCorrect) quizPoints += 10;
+      if (q5_isCorrect) quizPoints += 10;
+      if (q6_isCorrect) quizPoints += 10;
+
+      const totalScore = blankScore + quizPoints;
+
+      // 모달 바인딩
+      document.getElementById('modalStudentDesc').textContent = 
+        `${appState.student.grade} ${appState.student.num}번 ${appState.student.name} 학생의 채점 결과 (응시 일시: ${new Date().toLocaleDateString('ko-KR')} ${new Date().toLocaleTimeString('ko-KR')})`;
+      document.getElementById('modalScoreText').textContent = `${totalScore}점`;
+      document.getElementById('modalBlankScore').textContent = `${blankCorrect} / 6`;
+      document.getElementById('modalQuizScore').textContent = `${quizCorrect} / 6`;
+
+      const rankElem = document.getElementById('modalGradeRank');
+      const feedElem = document.getElementById('modalFeedbackMessage');
+
+      if (totalScore >= 90) {
+        rankElem.textContent = '최우수 (A등급)';
+        rankElem.className = 'text-[11px] text-indigo-600 font-bold';
+        feedElem.textContent = '삼국과 가야의 건국, 율령과 불교 수용, 한강 유역 쟁탈전과 신라의 삼국 통일 과정을 완벽하게 숙지하고 있습니다!';
+        try { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); } catch(e){}
+      } else if (totalScore >= 70) {
+        rankElem.textContent = '우수 (B등급)';
+        rankElem.className = 'text-[11px] text-emerald-600 font-bold';
+        feedElem.textContent = '대부분의 핵심 사건을 잘 파악하고 있습니다! 틀린 문항의 왕별 업적(고이왕, 진흥왕, 장수왕)을 시뮬레이터 지도에서 다시 확인해보세요.';
+      } else {
+        rankElem.textContent = '도전 필요 (C등급)';
+        rankElem.className = 'text-[11px] text-amber-600 font-bold';
+        feedElem.textContent = '고대 국가의 집권화 과정(율령, 불교)과 삼국의 전성기 세기별 지도를 탐구 탭에서 다시 복습해 보시길 권장합니다!';
+      }
+
+      // 문항별 리뷰 생성
+      const reviewList = document.getElementById('detailedReviewList');
+      reviewList.innerHTML = `
+        <div class="p-3 rounded-xl border ${q1_isCorrect ? 'bg-emerald-50/70 border-emerald-200' : 'bg-rose-50/70 border-rose-200'}">
+          <div class="flex items-center justify-between">
+            <span class="font-bold">1. 불교 수용·태학·율령 반포 군주</span>
+            <span class="font-extrabold ${q1_isCorrect ? 'text-emerald-700' : 'text-rose-700'}">${q1_isCorrect ? '정답 (+10점)' : '오답 (0점)'}</span>
+          </div>
+          <p class="text-slate-600 mt-1">학생 답: [${q1_val || '미입력'}] / 정답: [소수림왕] (4세기 후반 고구려의 국가 체제 정비)</p>
+        </div>
+
+        <div class="p-3 rounded-xl border ${q2_isCorrect ? 'bg-emerald-50/70 border-emerald-200' : 'bg-rose-50/70 border-rose-200'}">
+          <div class="flex items-center justify-between">
+            <span class="font-bold">2. 백제 한강 유역 장악 및 6좌평 정비</span>
+            <span class="font-extrabold ${q2_isCorrect ? 'text-emerald-700' : 'text-rose-700'}">${q2_isCorrect ? '정답 (+10점)' : '오답 (0점)'}</span>
+          </div>
+          <p class="text-slate-600 mt-1">학생 답: [${q2_val || '미선택'}] / 정답: [고이왕] (3세기 한강 장악 및 관등제 정비)</p>
+        </div>
+
+        <div class="p-3 rounded-xl border ${q3_isCorrect ? 'bg-emerald-50/70 border-emerald-200' : 'bg-rose-50/70 border-rose-200'}">
+          <div class="flex items-center justify-between">
+            <span class="font-bold">3. 신라 한강 장악 및 대가야 정복 군주</span>
+            <span class="font-extrabold ${q3_isCorrect ? 'text-emerald-700' : 'text-rose-700'}">${q3_isCorrect ? '정답 (+10점)' : '오답 (0점)'}</span>
+          </div>
+          <p class="text-slate-600 mt-1">학생 답: [${q3_val || '미선택'}] / 정답: [진흥왕] (6세기 한강 차지, 4개 순수비와 단양적성비)</p>
+        </div>
+
+        <div class="p-3 rounded-xl border ${q4_isCorrect ? 'bg-emerald-50/70 border-emerald-200' : 'bg-rose-50/70 border-rose-200'}">
+          <div class="flex items-center justify-between">
+            <span class="font-bold">4. 고구려 금석문에 나타난 천하관</span>
+            <span class="font-extrabold ${q4_isCorrect ? 'text-emerald-700' : 'text-rose-700'}">${q4_isCorrect ? '정답 (+10점)' : '오답 (0점)'}</span>
+          </div>
+          <p class="text-slate-600 mt-1">정답: ② 스스로를 천손이라 여기며 천하의 중심이라 자부한 독자적 천하관(영락, 동이 매금 표현).</p>
+        </div>
+
+        <div class="p-3 rounded-xl border ${q5_isCorrect ? 'bg-emerald-50/70 border-emerald-200' : 'bg-rose-50/70 border-rose-200'}">
+          <div class="flex items-center justify-between">
+            <span class="font-bold">5. 삼국의 귀족 회의 매칭</span>
+            <span class="font-extrabold ${q5_isCorrect ? 'text-emerald-700' : 'text-rose-700'}">${q5_isCorrect ? '정답 (+10점)' : '오답 (0점)'}</span>
+          </div>
+          <p class="text-slate-600 mt-1">정답: ③ 신라 - 화백 회의 (만장일치제). 고구려는 제가 회의, 백제는 정사암 회의입니다.</p>
+        </div>
+
+        <div class="p-3 rounded-xl border ${q6_isCorrect ? 'bg-emerald-50/70 border-emerald-200' : 'bg-rose-50/70 border-rose-200'}">
+          <div class="flex items-center justify-between">
+            <span class="font-bold">6. 삼국 통일 전쟁의 순서</span>
+            <span class="font-extrabold ${q6_isCorrect ? 'text-emerald-700' : 'text-rose-700'}">${q6_isCorrect ? '정답 (+10점)' : '오답 (0점)'}</span>
+          </div>
+          <p class="text-slate-600 mt-1">정답: ① 살수대첩(612) ➔ 백제·고구려 멸망(660, 668) ➔ 매소성·기벌포 전투(676).</p>
+        </div>
+      `;
+
+      document.getElementById('resultModal').classList.remove('hidden');
+    }
+
+    function closeResultModal() {
+      document.getElementById('resultModal').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
